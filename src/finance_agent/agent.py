@@ -194,7 +194,14 @@ def run_turn(
 
     client = OpenAI(base_url=base_url, api_key=api_key)
 
-    messages = messages + [{"role": "user", "content": user_input}]
+    # Strip tool-call internals from prior turns — Groq rejects them when
+    # passed back as history. The final assistant text already encodes the
+    # tool results in natural language, so context is preserved.
+    clean_history = [
+        m for m in messages
+        if m.get("role") in ("user", "assistant") and "tool_calls" not in m
+    ]
+    messages = clean_history + [{"role": "user", "content": user_input}]
     last_tool_args: dict = {}
 
     while True:
