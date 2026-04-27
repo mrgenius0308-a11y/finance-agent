@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Agent</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --accent: #16a34a;
+      --accent-hover: #15803d;
+      --user-bg: #1d4ed8;
+      --user-text: #ffffff;
+      --bot-bg: #ffffff;
+      --bot-text: #1e293b;
+      --muted: #64748b;
+      --error: #dc2626;
+      --radius: 16px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .header-text h1 { font-size: 14px; font-weight: 700; color: #0f172a; line-height: 1.2; }
+    .header-text p  { font-size: 11px; color: var(--muted); }
+
+    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .upload-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 11px;
+      border: 1.5px dashed var(--border);
+      border-radius: 7px;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      background: var(--bg);
+      transition: border-color .15s, color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .upload-btn:hover { border-color: var(--accent); color: var(--accent); background: #f0fdf4; }
+    #file-input { display: none; }
+
+    #file-badge {
+      display: none; align-items: center; gap: 6px;
+      background: #f0fdf4; border: 1.5px solid #bbf7d0;
+      border-radius: 7px; padding: 4px 9px;
+      font-size: 12px; color: #166534;
+    }
+    #file-badge .file-name { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #file-badge .file-meta { color: #4ade80; font-size: 11px; }
+
+    .badge-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 2px 4px; border-radius: 4px;
+      font-size: 12px; line-height: 1; color: #166534;
+      transition: background .12s;
+    }
+    .badge-btn:hover { background: #dcfce7; }
+    .vdiv { width: 1px; height: 14px; background: #bbf7d0; }
+    .status-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+
+    /* ── Provider bar ── */
+    #provider-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    #provider-bar label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .provider-tabs {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+
+    .ptab {
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      background: var(--bg);
+      border: none;
+      transition: background .12s, color .12s;
+      white-space: nowrap;
+    }
+    .ptab:not(:last-child) { border-right: 1.5px solid var(--border); }
+    .ptab.active { background: var(--accent); color: #fff; }
+    .ptab:disabled { opacity: .45; cursor: not-allowed; }
+
+    #model-select {
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: var(--bg);
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    #model-select:focus  { border-color: var(--accent); }
+    #model-select:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Ollama custom URL */
+    #ollama-url-wrap {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    #ollama-url-wrap span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    #ollama-url {
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: var(--bg);
+      outline: none;
+      width: 200px;
+      transition: border-color .15s;
+    }
+    #ollama-url:focus   { border-color: var(--accent); }
+    #ollama-url:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Locked indicator */
+    #session-lock {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    #session-lock.visible { display: flex; }
+    #session-lock .lock-icon { font-size: 10px; }
+
+    /* Provider pill (shown when locked) */
+    #active-provider-pill {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    #active-provider-pill.visible { display: flex; }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .pill-dot.groq   { background: #7c3aed; }
+    .pill-dot.ollama { background: #ea580c; }
+
+    /* ── Suggestions ── */
+    #suggestions {
+      padding: 9px 14px 0;
+      display: flex; gap: 7px; flex-wrap: wrap; flex-shrink: 0;
+    }
+    .suggestion {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; color: var(--muted); cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s; white-space: nowrap;
+    }
+    .suggestion:hover { border-color: var(--accent); color: var(--accent); background: #f0fdf4; }
+
+    /* ── Messages ── */
+    #messages {
+      flex: 1; overflow-y: auto;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 11px;
+      scroll-behavior: smooth;
+    }
+
+    .msg { display: flex; gap: 9px; max-width: 780px; animation: fadein .2s ease; }
+    @keyframes fadein { from { opacity:0; transform:translateY(5px); } to { opacity:1; } }
+
+    .msg.user  { align-self: flex-end;   flex-direction: row-reverse; }
+    .msg.bot   { align-self: flex-start; }
+    .msg.error { align-self: flex-start; }
+
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 13px; flex-shrink: 0; align-self: flex-end;
+    }
+    .msg.user .avatar { background: var(--user-bg); color: #fff; }
+    .msg.bot  .avatar { background: #e2e8f0; color: #475569; }
+
+    .bubble {
+      padding: 10px 14px; border-radius: var(--radius);
+      font-size: 13.5px; line-height: 1.65;
+      box-shadow: var(--shadow); max-width: 650px;
+    }
+    .msg.user  .bubble { background: var(--user-bg); color: var(--user-text); border-bottom-right-radius: 4px; }
+    .msg.bot   .bubble { background: var(--bot-bg); color: var(--bot-text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg.error .bubble { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); border-bottom-left-radius: 4px; }
+
+    .bubble h1, .bubble h2, .bubble h3 { margin: .7em 0 .3em; line-height: 1.3; }
+    .bubble h1 { font-size: 1.05em; } .bubble h2 { font-size: 1em; } .bubble h3 { font-size: .95em; }
+    .bubble p  { margin: .35em 0; }
+    .bubble ul, .bubble ol { margin: .35em 0 .35em 1.3em; }
+    .bubble li { margin: .18em 0; }
+    .bubble strong { font-weight: 600; }
+    .bubble code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-family: "SF Mono", Menlo, monospace; font-size: .87em; }
+    .bubble pre  { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; overflow-x: auto; margin: .5em 0; }
+    .bubble pre code { background: none; padding: 0; }
+    .bubble table { border-collapse: collapse; width: 100%; margin: .55em 0; font-size: .9em; }
+    .bubble th, .bubble td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
+    .bubble th { background: #f8fafc; font-weight: 600; }
+
+    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 14px; }
+    .typing span { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce .9s infinite; }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    /* ── Input bar ── */
+    #input-bar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 10px 14px; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+    }
+
+    #input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 11px;
+      padding: 9px 13px; font-size: 13.5px; font-family: inherit;
+      resize: none; outline: none; max-height: 130px; line-height: 1.5;
+      transition: border-color .15s; color: #0f172a;
+    }
+    #input:focus { border-color: var(--accent); }
+    #input::placeholder { color: #94a3b8; }
+
+    #send-btn {
+      width: 40px; height: 40px; border: none; border-radius: 11px;
+      background: var(--accent); color: #fff;
+      cursor: pointer; display: grid; place-items: center; flex-shrink: 0;
+      transition: background .15s, transform .1s;
+    }
+    #send-btn:hover  { background: var(--accent-hover); }
+    #send-btn:active { transform: scale(.94); }
+    #send-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+    #clear-btn {
+      background: none; border: 1.5px solid var(--border); border-radius: 11px;
+      padding: 0 11px; height: 40px; font-size: 12px; color: var(--muted);
+      cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s;
+    }
+    #clear-btn:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── Empty state ── */
+    #empty-state { margin: auto; text-align: center; padding: 28px 16px; }
+    #empty-state .icon { font-size: 44px; margin-bottom: 10px; }
+    #empty-state h2 { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
+    #empty-state p  { font-size: 13px; color: var(--muted); max-width: 320px; }
+
+    /* ── Drag overlay ── */
+    #drag-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(22,163,74,.12); border: 3px dashed var(--accent);
+      z-index: 100; pointer-events: none;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      font-size: 18px; font-weight: 700; color: var(--accent);
+    }
+    #drag-overlay.active { display: flex; }
+  </style>
+</head>
+<body>
+
+<div id="drag-overlay">
+  <div style="font-size:42px">📂</div>
+  Drop CSV or Excel file here
+</div>
+
+<!-- ── Header ── -->
+<header>
+  <div class="logo">💰</div>
+  <div class="header-text">
+    <h1>Finance Agent</h1>
+    <p id="header-subtitle">Choose a provider below to start</p>
+  </div>
+
+  <div class="header-actions">
+    <div id="file-badge">
+      <span>📄</span>
+      <span class="file-name" id="badge-name">file.csv</span>
+      <span class="file-meta" id="badge-meta"></span>
+      <div class="vdiv"></div>
+      <button class="badge-btn" onclick="downloadFile('csv')" title="Download CSV">⬇ CSV</button>
+      <button class="badge-btn" onclick="downloadFile('xlsx')" title="Download Excel">⬇ Excel</button>
+      <div class="vdiv"></div>
+      <button class="badge-btn" onclick="clearFile()" title="Remove file">✕</button>
+    </div>
+
+    <label class="upload-btn" id="upload-label" for="file-input" title="Upload CSV or Excel">
+      📎 Upload CSV / Excel
+    </label>
+    <input id="file-input" type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(this)" />
+
+    <div class="status-dot" title="Connected"></div>
+  </div>
+</header>
+
+<!-- ── Provider bar ── -->
+<div id="provider-bar">
+  <label>Provider</label>
+
+  <div class="provider-tabs">
+    <button class="ptab active" id="tab-groq"   onclick="selectProvider('groq')">☁️ Groq</button>
+    <button class="ptab"        id="tab-ollama" onclick="selectProvider('ollama')">🖥️ Ollama (local)</button>
+  </div>
+
+  <select id="model-select" title="Model"></select>
+
+  <div id="ollama-url-wrap">
+    <span>URL</span>
+    <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
+  </div>
+
+  <!-- Shown once a session is active -->
+  <div id="session-lock">
+    <span class="lock-icon">🔒</span>
+    <span>Locked for this session — click <strong>New chat</strong> to switch</span>
+  </div>
+
+  <div id="active-provider-pill">
+    <div class="pill-dot" id="pill-dot"></div>
+    <span id="pill-label"></span>
+    <span style="color:var(--muted); font-size:11px; font-weight:400" id="pill-model"></span>
+  </div>
+</div>
+
+<!-- ── Suggestions ── -->
+<div id="suggestions">
+  <button class="suggestion" onclick="suggest(this)">📊 Spending last month</button>
+  <button class="suggestion" onclick="suggest(this)">🏪 Top merchants</button>
+  <button class="suggestion" onclick="suggest(this)">🔁 Recurring subscriptions</button>
+  <button class="suggestion" onclick="suggest(this)">📅 Monthly summary</button>
+  <button class="suggestion" onclick="suggest(this)">🔍 Search for coffee</button>
+</div>
+
+<!-- ── Messages ── -->
+<div id="messages">
+  <div id="empty-state">
+    <div class="icon">📈</div>
+    <h2>Ask about your finances</h2>
+    <p>Select a provider above, then ask anything about your spending, budgets, or transactions.</p>
+  </div>
+</div>
+
+<!-- ── Input bar ── -->
+<div id="input-bar">
+  <button id="clear-btn" onclick="clearChat()">New chat</button>
+  <textarea
+    id="input" rows="1"
+    placeholder="Ask about your spending, budgets, transactions…"
+    onkeydown="handleKey(event)"
+    oninput="autoResize(this)"
+  ></textarea>
+  <button id="send-btn" onclick="send()" title="Send (Enter)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13"></line>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+    </svg>
+  </button>
+</div>
+
+<script>
+  // ── State ────────────────────────────────────────────────────────────────
+  let history  = [];
+  let context  = {};
+  let fileId   = null;
+  let busy     = false;
+  let sessionStarted = false;
+
+  let providerData   = {};     // fetched from /api/providers
+  let activeProvider = 'groq'; // 'groq' | 'ollama'
+
+  const messagesEl  = document.getElementById('messages');
+  const inputEl     = document.getElementById('input');
+  const sendBtn     = document.getElementById('send-btn');
+  const suggestions = document.getElementById('suggestions');
+  const fileBadge   = document.getElementById('file-badge');
+  const uploadLabel = document.getElementById('upload-label');
+  const modelSel    = document.getElementById('model-select');
+  const ollamaWrap  = document.getElementById('ollama-url-wrap');
+  const ollamaUrl   = document.getElementById('ollama-url');
+  const sessionLock = document.getElementById('session-lock');
+  const provPill    = document.getElementById('active-provider-pill');
+
+  marked.setOptions({ breaks: true, gfm: true });
+
+  // ── Init: load providers ──────────────────────────────────────────────────
+  async function initProviders() {
+    try {
+      const res = await fetch('/api/providers');
+      providerData = await res.json();
+    } catch {
+      providerData = {
+        groq:   { models: ['llama-3.1-8b-instant'], default_model: 'llama-3.1-8b-instant', available: true },
+        ollama: { models: ['llama3.2'], default_model: 'llama3.2', available: true },
+      };
+    }
+
+    // Disable Groq tab if key not set
+    const groqAvail = providerData.groq?.available ?? true;
+    if (!groqAvail) {
+      document.getElementById('tab-groq').disabled = true;
+      document.getElementById('tab-groq').title = providerData.groq.unavailable_reason || '';
+      selectProvider('ollama');
+    } else {
+      selectProvider('groq');
+    }
+  }
+
+  function selectProvider(p) {
+    if (sessionStarted) return;
+    activeProvider = p;
+
+    document.getElementById('tab-groq').classList.toggle('active', p === 'groq');
+    document.getElementById('tab-ollama').classList.toggle('active', p === 'ollama');
+
+    const data = providerData[p] || {};
+    const models = data.models || [];
+
+    modelSel.innerHTML = '';
+    models.forEach(m => {
+      const o = document.createElement('option');
+      o.value = o.textContent = m;
+      modelSel.appendChild(o);
+    });
+    if (data.default_model) modelSel.value = data.default_model;
+
+    ollamaWrap.style.display = p === 'ollama' ? 'flex' : 'none';
+
+    updateHeaderSubtitle();
+  }
+
+  function updateHeaderSubtitle() {
+    const sub = document.getElementById('header-subtitle');
+    if (sessionStarted) return;
+    const label = activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)';
+    sub.textContent = `${label} · ${modelSel.value || ''}`;
+  }
+
+  modelSel.addEventListener('change', updateHeaderSubtitle);
+
+  // ── Lock / unlock provider controls ──────────────────────────────────────
+
+  function lockProvider() {
+    sessionStarted = true;
+    document.getElementById('tab-groq').disabled   = true;
+    document.getElementById('tab-ollama').disabled = true;
+    modelSel.disabled   = true;
+    ollamaUrl.disabled  = true;
+    sessionLock.classList.add('visible');
+
+    // Show pill
+    provPill.classList.add('visible');
+    document.getElementById('pill-dot').className = `pill-dot ${activeProvider}`;
+    document.getElementById('pill-label').textContent =
+      activeProvider === 'groq' ? '☁️ Groq' : '🖥️ Ollama';
+    document.getElementById('pill-model').textContent = '· ' + modelSel.value;
+
+    const sub = document.getElementById('header-subtitle');
+    sub.textContent = activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)';
+    sub.textContent += ' · ' + modelSel.value;
+  }
+
+  function unlockProvider() {
+    sessionStarted = false;
+    const groqAvail = providerData.groq?.available ?? true;
+    document.getElementById('tab-groq').disabled   = !groqAvail;
+    document.getElementById('tab-ollama').disabled = false;
+    modelSel.disabled  = false;
+    ollamaUrl.disabled = false;
+    sessionLock.classList.remove('visible');
+    provPill.classList.remove('visible');
+    updateHeaderSubtitle();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  function suggest(btn) {
+    const text = btn.textContent.replace(/^[^\w]+/, '').trim();
+    inputEl.value = text;
+    autoResize(inputEl);
+    inputEl.focus();
+  }
+
+  function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+  // ── Messages ──────────────────────────────────────────────────────────────
+
+  function addMessage(role, content) {
+    document.getElementById('empty-state')?.remove();
+    suggestions.style.display = 'none';
+
+    const msg    = document.createElement('div');
+    msg.className = `msg ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = role === 'user' ? '🧑' : role === 'bot' ? '🤖' : '⚠️';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    if (role === 'user' || role === 'error') {
+      bubble.textContent = content;
+    } else {
+      bubble.innerHTML = marked.parse(content);
+    }
+
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    messagesEl.appendChild(msg);
+    scrollBottom();
+  }
+
+  function addSystemMessage(md) {
+    document.getElementById('empty-state')?.remove();
+    suggestions.style.display = 'none';
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'text-align:center;font-size:12px;color:var(--muted);padding:2px 0;';
+    wrap.innerHTML = marked.parseInline(md);
+    messagesEl.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function showTyping() {
+    const msg = document.createElement('div');
+    msg.className = 'msg bot'; msg.id = 'typing-indicator';
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar'; avatar.textContent = '🤖';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble typing';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    msg.appendChild(avatar); msg.appendChild(bubble);
+    messagesEl.appendChild(msg); scrollBottom();
+  }
+
+  function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
+
+  // ── Provider config for request ───────────────────────────────────────────
+
+  function getProviderConfig() {
+    return {
+      type:       activeProvider,
+      model:      modelSel.value,
+      ollama_url: ollamaUrl.value.trim() || 'http://localhost:11434/v1',
+    };
+  }
+
+  // ── Chat ──────────────────────────────────────────────────────────────────
+
+  async function send() {
+    if (busy) return;
+    const message = inputEl.value.trim();
+    if (!message) return;
+
+    if (!sessionStarted) lockProvider();
+
+    busy = true;
+    sendBtn.disabled = true;
+    inputEl.value = ''; inputEl.style.height = 'auto';
+
+    addMessage('user', message);
+    showTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message, history, context,
+          file_id:  fileId,
+          provider: getProviderConfig(),
+        }),
+      });
+
+      removeTyping();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        addMessage('error', 'Error: ' + (err.detail || res.statusText));
+      } else {
+        const data = await res.json();
+        addMessage('bot', data.response);
+        history = data.history;
+        context = data.context;
+      }
+    } catch {
+      removeTyping();
+      addMessage('error', 'Network error — is the server running?');
+    }
+
+    busy = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+
+  function clearChat() {
+    history = []; context = {};
+    messagesEl.innerHTML = `
+      <div id="empty-state">
+        <div class="icon">📈</div>
+        <h2>Ask about your finances</h2>
+        <p>Select a provider above, then ask anything about your spending, budgets, or transactions.</p>
+      </div>`;
+    suggestions.style.display = 'flex';
+    unlockProvider();
+    inputEl.focus();
+  }
+
+  // ── File upload ───────────────────────────────────────────────────────────
+
+  async function handleUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = '';
+
+    uploadLabel.textContent = '⏳ Uploading…';
+    uploadLabel.style.pointerEvents = 'none';
+
+    const form = new FormData();
+    form.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: form });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        alert('Upload failed: ' + (err.detail || res.statusText));
+        return;
+      }
+      const data = await res.json();
+      setActiveFile(data);
+      addSystemMessage(`📂 Loaded **${data.filename}** — ${data.rows.toLocaleString()} rows · ${data.date_min} → ${data.date_max}`);
+    } catch {
+      alert('Upload failed — network error.');
+    } finally {
+      uploadLabel.textContent = '📎 Upload CSV / Excel';
+      uploadLabel.style.pointerEvents = '';
+    }
+  }
+
+  function setActiveFile(data) {
+    fileId = data.file_id;
+    document.getElementById('badge-name').textContent = data.filename;
+    document.getElementById('badge-meta').textContent = `${data.rows.toLocaleString()} rows`;
+    fileBadge.style.display   = 'flex';
+    uploadLabel.style.display = 'none';
+    history = []; context = {};
+  }
+
+  function clearFile() {
+    fileId = null;
+    fileBadge.style.display   = 'none';
+    uploadLabel.style.display = '';
+    addSystemMessage('Switched back to sample data.');
+    history = []; context = {};
+  }
+
+  function downloadFile(format) {
+    if (!fileId) return;
+    window.open(`/api/download/${fileId}?format=${format}`, '_blank');
+  }
+
+  // ── Drag-and-drop ─────────────────────────────────────────────────────────
+
+  const overlay = document.getElementById('drag-overlay');
+  let dragCount = 0;
+
+  document.addEventListener('dragenter', e => {
+    if ([...e.dataTransfer.items].some(i => i.kind === 'file')) {
+      dragCount++; overlay.classList.add('active');
+    }
+  });
+  document.addEventListener('dragleave', () => {
+    if (--dragCount <= 0) { dragCount = 0; overlay.classList.remove('active'); }
+  });
+  document.addEventListener('dragover', e => e.preventDefault());
+  document.addEventListener('drop', e => {
+    e.preventDefault(); dragCount = 0; overlay.classList.remove('active');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const suffix = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'xlsx', 'xls'].includes(suffix)) {
+      alert('Please drop a CSV or Excel (.xlsx / .xls) file.'); return;
+    }
+    handleUpload({ files: [file], value: '' });
+  });
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  initProviders();
+  inputEl.focus();
+</script>
+</body>
+</html>

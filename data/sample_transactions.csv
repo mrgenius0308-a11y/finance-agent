@@ -1,0 +1,194 @@
+date,description,merchant,category,amount,account
+2025-11-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2025-11-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2025-11-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2025-11-02,Whole Foods Market,Whole Foods,Groceries,-87.43,Credit Card
+2025-11-03,Chipotle Mexican Grill,Chipotle,Dining,-14.75,Credit Card
+2025-11-04,Uber Ride,Uber,Transport,-18.50,Credit Card
+2025-11-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2025-11-06,Trader Joes,Trader Joes,Groceries,-64.21,Credit Card
+2025-11-07,Amazon Purchase,Amazon,Shopping,-42.99,Credit Card
+2025-11-08,CVS Pharmacy,CVS,Health,-23.45,Credit Card
+2025-11-09,Shell Gas Station,Shell,Transport,-58.00,Credit Card
+2025-11-10,Starbucks Coffee,Starbucks,Dining,-6.75,Credit Card
+2025-11-11,Electric Bill Nov,ConEd,Utilities,-95.00,Checking
+2025-11-12,Target Store,Target,Shopping,-67.89,Credit Card
+2025-11-13,Olive Garden Dinner,Olive Garden,Dining,-54.30,Credit Card
+2025-11-14,Lyft Ride,Lyft,Transport,-22.00,Credit Card
+2025-11-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2025-11-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2025-11-16,Kroger Grocery,Kroger,Groceries,-112.33,Credit Card
+2025-11-17,Internet Bill Nov,Comcast,Utilities,-75.00,Checking
+2025-11-18,AMC Movie Theater,AMC,Entertainment,-32.00,Credit Card
+2025-11-19,Whole Foods Market,Whole Foods,Groceries,-73.15,Credit Card
+2025-11-20,Matsuri Sushi,Matsuri,Dining,-78.50,Credit Card
+2025-11-21,Amazon Purchase,Amazon,Shopping,-29.99,Credit Card
+2025-11-22,Doctor Visit Copay,Medical Center,Health,-45.00,Checking
+2025-11-23,Uber Ride,Uber,Transport,-24.00,Credit Card
+2025-11-24,Costco Wholesale,Costco,Groceries,-134.67,Credit Card
+2025-11-25,Apple App Store,Apple,Entertainment,-9.99,Credit Card
+2025-11-26,Exxon Gas Station,Exxon,Transport,-62.00,Credit Card
+2025-11-27,Whole Foods Thanksgiving,Whole Foods,Groceries,-89.99,Credit Card
+2025-11-28,The Capital Grille,The Capital Grille,Dining,-145.00,Credit Card
+2025-11-29,Amazon Black Friday,Amazon,Shopping,-89.99,Credit Card
+2025-11-30,Water Utility Nov,NYC Water,Utilities,-42.00,Checking
+2025-12-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2025-12-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2025-12-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2025-12-02,Whole Foods Market,Whole Foods,Groceries,-92.10,Credit Card
+2025-12-03,Starbucks Coffee,Starbucks,Dining,-7.25,Credit Card
+2025-12-04,Uber Ride,Uber,Transport,-19.50,Credit Card
+2025-12-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2025-12-06,Target Holiday Shopping,Target,Shopping,-234.50,Credit Card
+2025-12-07,Amazon Gift Shopping,Amazon,Shopping,-156.78,Credit Card
+2025-12-08,Trader Joes,Trader Joes,Groceries,-71.45,Credit Card
+2025-12-09,Shell Gas Station,Shell,Transport,-61.00,Credit Card
+2025-12-10,Chipotle Mexican Grill,Chipotle,Dining,-16.25,Credit Card
+2025-12-11,Electric Bill Dec,ConEd,Utilities,-110.00,Checking
+2025-12-12,AMC Movie Theater,AMC,Entertainment,-44.00,Credit Card
+2025-12-13,Lyft Ride,Lyft,Transport,-28.00,Credit Card
+2025-12-14,Nobu Holiday Dinner,Nobu,Dining,-195.00,Credit Card
+2025-12-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2025-12-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2025-12-16,Kroger Grocery,Kroger,Groceries,-98.76,Credit Card
+2025-12-17,Internet Bill Dec,Comcast,Utilities,-75.00,Checking
+2025-12-18,Walgreens Pharmacy,Walgreens,Health,-34.99,Credit Card
+2025-12-20,Whole Foods Holiday,Whole Foods,Groceries,-145.23,Credit Card
+2025-12-21,Ticketmaster Concert,Ticketmaster,Entertainment,-85.00,Credit Card
+2025-12-22,Uber Ride,Uber,Transport,-31.00,Credit Card
+2025-12-23,Amazon Holiday Gifts,Amazon,Shopping,-112.34,Credit Card
+2025-12-24,Costco Christmas,Costco,Groceries,-167.89,Credit Card
+2025-12-25,Le Bernardin Christmas,Le Bernardin,Dining,-320.00,Credit Card
+2025-12-26,Apple Store Purchase,Apple,Shopping,-199.00,Credit Card
+2025-12-27,Exxon Gas Station,Exxon,Transport,-65.00,Credit Card
+2025-12-28,GNC Supplements,GNC,Health,-45.00,Credit Card
+2025-12-29,Water Utility Dec,NYC Water,Utilities,-42.00,Checking
+2025-12-30,Per Se New Years Eve,Per Se,Dining,-280.00,Credit Card
+2025-12-31,Total Wine New Years,Total Wine,Dining,-67.00,Credit Card
+2026-01-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-01-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2026-01-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2026-01-02,Whole Foods Market,Whole Foods,Groceries,-78.32,Credit Card
+2026-01-03,Starbucks Coffee,Starbucks,Dining,-6.50,Credit Card
+2026-01-04,Uber Ride,Uber,Transport,-16.00,Credit Card
+2026-01-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2026-01-06,Chipotle Mexican Grill,Chipotle,Dining,-15.50,Credit Card
+2026-01-07,Target Store,Target,Shopping,-89.99,Credit Card
+2026-01-08,CVS Pharmacy,CVS,Health,-28.75,Credit Card
+2026-01-09,Shell Gas Station,Shell,Transport,-55.00,Credit Card
+2026-01-10,Trader Joes,Trader Joes,Groceries,-67.89,Credit Card
+2026-01-11,Electric Bill Jan,ConEd,Utilities,-125.00,Checking
+2026-01-12,Amazon Purchase,Amazon,Shopping,-54.99,Credit Card
+2026-01-13,Lyft Ride,Lyft,Transport,-19.00,Credit Card
+2026-01-14,Matsuri Sushi,Matsuri,Dining,-65.00,Credit Card
+2026-01-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-01-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2026-01-16,Kroger Grocery,Kroger,Groceries,-103.45,Credit Card
+2026-01-17,Internet Bill Jan,Comcast,Utilities,-75.00,Checking
+2026-01-18,AMC Movie Theater,AMC,Entertainment,-28.00,Credit Card
+2026-01-19,Whole Foods Market,Whole Foods,Groceries,-82.10,Credit Card
+2026-01-20,Doctor Visit Copay,Medical Center,Health,-45.00,Checking
+2026-01-21,Uber Ride,Uber,Transport,-22.00,Credit Card
+2026-01-22,Amazon Purchase,Amazon,Shopping,-37.99,Credit Card
+2026-01-23,Carbone Dinner,Carbone,Dining,-145.00,Credit Card
+2026-01-24,Exxon Gas Station,Exxon,Transport,-58.00,Credit Card
+2026-01-25,Costco Wholesale,Costco,Groceries,-129.56,Credit Card
+2026-01-26,Apple App Store,Apple,Entertainment,-14.99,Credit Card
+2026-01-27,Walgreens Pharmacy,Walgreens,Health,-29.99,Credit Card
+2026-01-28,Water Utility Jan,NYC Water,Utilities,-42.00,Checking
+2026-01-29,Olive Garden Dinner,Olive Garden,Dining,-52.40,Credit Card
+2026-01-30,Amazon Purchase,Amazon,Shopping,-21.99,Credit Card
+2026-01-31,GNC Gym Supplements,GNC,Health,-42.00,Credit Card
+2026-02-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-02-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2026-02-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2026-02-02,Whole Foods Market,Whole Foods,Groceries,-76.43,Credit Card
+2026-02-03,Starbucks Coffee,Starbucks,Dining,-7.00,Credit Card
+2026-02-04,Uber Ride,Uber,Transport,-17.50,Credit Card
+2026-02-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2026-02-06,Trader Joes,Trader Joes,Groceries,-59.88,Credit Card
+2026-02-07,Amazon Purchase,Amazon,Shopping,-63.49,Credit Card
+2026-02-08,Chipotle Mexican Grill,Chipotle,Dining,-14.25,Credit Card
+2026-02-09,Shell Gas Station,Shell,Transport,-53.00,Credit Card
+2026-02-10,CVS Pharmacy,CVS,Health,-19.99,Credit Card
+2026-02-11,Electric Bill Feb,ConEd,Utilities,-118.00,Checking
+2026-02-12,AMC Movie Theater,AMC,Entertainment,-35.00,Credit Card
+2026-02-13,Le Coucou Valentine,Le Coucou,Dining,-225.00,Credit Card
+2026-02-14,FTD Flower Delivery,FTD Flowers,Shopping,-89.99,Credit Card
+2026-02-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-02-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2026-02-16,Kroger Grocery,Kroger,Groceries,-94.33,Credit Card
+2026-02-17,Internet Bill Feb,Comcast,Utilities,-75.00,Checking
+2026-02-18,Lyft Ride,Lyft,Transport,-21.00,Credit Card
+2026-02-19,Whole Foods Market,Whole Foods,Groceries,-68.75,Credit Card
+2026-02-20,Amazon Purchase,Amazon,Shopping,-45.00,Credit Card
+2026-02-21,Dental Care NYC,Dental Care NYC,Health,-125.00,Checking
+2026-02-22,Uber Ride,Uber,Transport,-19.00,Credit Card
+2026-02-23,Target Store,Target,Shopping,-55.67,Credit Card
+2026-02-24,Exxon Gas Station,Exxon,Transport,-57.00,Credit Card
+2026-02-25,Costco Wholesale,Costco,Groceries,-121.34,Credit Card
+2026-02-26,Water Utility Feb,NYC Water,Utilities,-42.00,Checking
+2026-02-27,Balthazar Dinner,Balthazar,Dining,-98.50,Credit Card
+2026-02-28,Walgreens Pharmacy,Walgreens,Health,-31.50,Credit Card
+2026-03-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-03-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2026-03-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2026-03-02,Whole Foods Market,Whole Foods,Groceries,-81.20,Credit Card
+2026-03-03,Starbucks Coffee,Starbucks,Dining,-6.75,Credit Card
+2026-03-04,Uber Ride,Uber,Transport,-20.00,Credit Card
+2026-03-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2026-03-06,Trader Joes,Trader Joes,Groceries,-62.34,Credit Card
+2026-03-07,Amazon Purchase,Amazon,Shopping,-78.99,Credit Card
+2026-03-08,Chipotle Mexican Grill,Chipotle,Dining,-15.75,Credit Card
+2026-03-09,Shell Gas Station,Shell,Transport,-56.00,Credit Card
+2026-03-10,CVS Pharmacy,CVS,Health,-22.50,Credit Card
+2026-03-11,Electric Bill Mar,ConEd,Utilities,-102.00,Checking
+2026-03-12,AMC Movie Theater,AMC,Entertainment,-30.00,Credit Card
+2026-03-13,Lyft Ride,Lyft,Transport,-24.00,Credit Card
+2026-03-14,Nobu Dinner,Nobu,Dining,-167.00,Credit Card
+2026-03-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-03-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2026-03-16,Kroger Grocery,Kroger,Groceries,-95.60,Credit Card
+2026-03-17,Internet Bill Mar,Comcast,Utilities,-75.00,Checking
+2026-03-18,Target Store,Target,Shopping,-112.45,Credit Card
+2026-03-19,Whole Foods Market,Whole Foods,Groceries,-77.89,Credit Card
+2026-03-20,Doctor Visit Copay,Medical Center,Health,-45.00,Checking
+2026-03-21,Uber Ride,Uber,Transport,-23.00,Credit Card
+2026-03-22,Amazon Purchase,Amazon,Shopping,-33.99,Credit Card
+2026-03-23,Matsuri Sushi,Matsuri,Dining,-72.00,Credit Card
+2026-03-24,Exxon Gas Station,Exxon,Transport,-60.00,Credit Card
+2026-03-25,Costco Wholesale,Costco,Groceries,-143.21,Credit Card
+2026-03-26,Ticketmaster Concert,Ticketmaster,Entertainment,-78.00,Credit Card
+2026-03-27,Walgreens Pharmacy,Walgreens,Health,-31.50,Credit Card
+2026-03-28,Water Utility Mar,NYC Water,Utilities,-42.00,Checking
+2026-03-29,Olive Garden Dinner,Olive Garden,Dining,-48.25,Credit Card
+2026-03-30,Amazon Purchase,Amazon,Shopping,-27.49,Credit Card
+2026-03-31,GNC Gym Supplements,GNC,Health,-38.00,Credit Card
+2026-04-01,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-04-01,Netflix Monthly,Netflix,Subscriptions,-15.99,Credit Card
+2026-04-01,Apt Rent Payment,Landlord,Rent,-1800.00,Checking
+2026-04-02,Whole Foods Market,Whole Foods,Groceries,-84.56,Credit Card
+2026-04-03,Starbucks Coffee,Starbucks,Dining,-7.25,Credit Card
+2026-04-04,Uber Ride,Uber,Transport,-18.00,Credit Card
+2026-04-05,Spotify Premium,Spotify,Subscriptions,-9.99,Credit Card
+2026-04-06,Trader Joes,Trader Joes,Groceries,-58.92,Credit Card
+2026-04-07,Amazon Purchase,Amazon,Shopping,-48.99,Credit Card
+2026-04-08,Chipotle Mexican Grill,Chipotle,Dining,-16.00,Credit Card
+2026-04-09,Shell Gas Station,Shell,Transport,-54.00,Credit Card
+2026-04-10,CVS Pharmacy,CVS,Health,-21.00,Credit Card
+2026-04-11,Electric Bill Apr,ConEd,Utilities,-88.00,Checking
+2026-04-12,AMC Movie Theater,AMC,Entertainment,-27.00,Credit Card
+2026-04-13,Lyft Ride,Lyft,Transport,-20.00,Credit Card
+2026-04-14,Carbone Dinner,Carbone,Dining,-178.00,Credit Card
+2026-04-15,Direct Deposit Employer,Employer Inc,Income,3200.00,Checking
+2026-04-15,Planet Fitness Monthly,Planet Fitness,Subscriptions,-24.99,Credit Card
+2026-04-16,Kroger Grocery,Kroger,Groceries,-101.23,Credit Card
+2026-04-17,Internet Bill Apr,Comcast,Utilities,-75.00,Checking
+2026-04-18,Whole Foods Market,Whole Foods,Groceries,-79.34,Credit Card
+2026-04-19,Amazon Purchase,Amazon,Shopping,-67.50,Credit Card
+2026-04-20,Doctor Visit Copay,Medical Center,Health,-45.00,Checking
+2026-04-21,Uber Ride,Uber,Transport,-21.00,Credit Card
+2026-04-22,Target Store,Target,Shopping,-93.45,Credit Card
+2026-04-23,Matsuri Sushi,Matsuri,Dining,-69.00,Credit Card
+2026-04-24,Exxon Gas Station,Exxon,Transport,-59.00,Credit Card
+2026-04-25,Walgreens Pharmacy,Walgreens,Health,-28.50,Credit Card
