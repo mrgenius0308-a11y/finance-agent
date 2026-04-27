@@ -4,411 +4,665 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finance Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f4f6f9;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --accent: #16a34a;
-      --accent-hover: #15803d;
-      --user-bg: #1d4ed8;
-      --user-text: #ffffff;
-      --bot-bg: #ffffff;
-      --bot-text: #1e293b;
-      --muted: #64748b;
-      --error: #dc2626;
-      --radius: 16px;
-      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --bg:           #09090f;
+      --sidebar-bg:   #0e0e17;
+      --surface:      #14141f;
+      --card:         #1a1a28;
+      --border:       #252535;
+      --border-soft:  #1e1e2e;
+      --accent:       #6366f1;
+      --accent-dim:   rgba(99,102,241,.12);
+      --accent-glow:  rgba(99,102,241,.35);
+      --accent-hover: #4f46e5;
+      --success:      #34d399;
+      --error:        #f87171;
+      --text:         #c9d1e0;
+      --text-strong:  #e8ecf4;
+      --text-muted:   #636b7e;
+      --user-from:    #4f46e5;
+      --user-to:      #7c3aed;
+      --r:            8px;
+      --r-lg:         14px;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
+      color: var(--text);
       height: 100dvh;
       display: flex;
-      flex-direction: column;
       overflow: hidden;
     }
 
-    /* ── Header ── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 11px 16px;
+    /* ─── Scrollbars ─────────────────────────────────────── */
+    ::-webkit-scrollbar            { width: 4px; }
+    ::-webkit-scrollbar-track      { background: transparent; }
+    ::-webkit-scrollbar-thumb      { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover{ background: #353550; }
+
+    /* ─── Sidebar ────────────────────────────────────────── */
+    .sidebar {
+      width: 252px;
+      min-width: 252px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Logo */
+    .sidebar-logo {
+      padding: 18px 14px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
+      border-bottom: 1px solid var(--border-soft);
       flex-shrink: 0;
-      box-shadow: var(--shadow);
     }
 
-    .logo {
-      width: 32px; height: 32px;
-      background: var(--accent);
-      border-radius: 8px;
+    .logo-gem {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      border-radius: 10px;
       display: grid; place-items: center;
-      font-size: 16px; flex-shrink: 0;
-    }
-
-    .header-text h1 { font-size: 14px; font-weight: 700; color: #0f172a; line-height: 1.2; }
-    .header-text p  { font-size: 11px; color: var(--muted); }
-
-    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-
-    .upload-btn {
-      display: flex; align-items: center; gap: 5px;
-      padding: 5px 11px;
-      border: 1.5px dashed var(--border);
-      border-radius: 7px;
-      font-size: 12px; font-weight: 500;
-      color: var(--muted); cursor: pointer;
-      background: var(--bg);
-      transition: border-color .15s, color .15s, background .15s;
-      white-space: nowrap;
-    }
-    .upload-btn:hover { border-color: var(--accent); color: var(--accent); background: #f0fdf4; }
-    #file-input { display: none; }
-
-    #file-badge {
-      display: none; align-items: center; gap: 6px;
-      background: #f0fdf4; border: 1.5px solid #bbf7d0;
-      border-radius: 7px; padding: 4px 9px;
-      font-size: 12px; color: #166534;
-    }
-    #file-badge .file-name { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #file-badge .file-meta { color: #4ade80; font-size: 11px; }
-
-    .badge-btn {
-      background: none; border: none; cursor: pointer;
-      padding: 2px 4px; border-radius: 4px;
-      font-size: 12px; line-height: 1; color: #166534;
-      transition: background .12s;
-    }
-    .badge-btn:hover { background: #dcfce7; }
-    .vdiv { width: 1px; height: 14px; background: #bbf7d0; }
-    .status-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
-
-    /* ── Provider bar ── */
-    #provider-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 17px;
       flex-shrink: 0;
-      flex-wrap: wrap;
+      box-shadow: 0 0 18px var(--accent-glow);
     }
 
-    #provider-bar label {
-      font-size: 12px;
+    .logo-copy h1 { font-size: 14px; font-weight: 700; color: var(--text-strong); }
+    .logo-copy p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
+
+    /* Sections */
+    .sb-section {
+      padding: 14px 12px 12px;
+      flex-shrink: 0;
+    }
+    .sb-section + .sb-section { border-top: 1px solid var(--border-soft); }
+    .sb-section.grow { flex: 1; overflow-y: auto; min-height: 0; }
+
+    .sb-label {
+      font-size: 10px;
       font-weight: 600;
-      color: var(--muted);
-      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      padding: 0 2px;
+      margin-bottom: 9px;
     }
 
+    /* Provider tabs */
     .provider-tabs {
       display: flex;
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
       overflow: hidden;
+      margin-bottom: 8px;
     }
 
     .ptab {
-      padding: 4px 12px;
-      font-size: 12px;
+      flex: 1;
+      padding: 6px 0;
+      font-size: 11.5px;
       font-weight: 500;
-      color: var(--muted);
+      color: var(--text-muted);
       cursor: pointer;
-      background: var(--bg);
+      background: transparent;
       border: none;
-      transition: background .12s, color .12s;
-      white-space: nowrap;
+      font-family: inherit;
+      transition: background .14s, color .14s;
     }
-    .ptab:not(:last-child) { border-right: 1.5px solid var(--border); }
-    .ptab.active { background: var(--accent); color: #fff; }
-    .ptab:disabled { opacity: .45; cursor: not-allowed; }
+    .ptab:not(:last-child) { border-right: 1px solid var(--border); }
+    .ptab.active           { background: var(--accent); color: #fff; }
+    .ptab:disabled         { opacity: .38; cursor: not-allowed; }
 
     #model-select {
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #0f172a;
+      width: 100%;
       background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 7px 9px;
+      font-size: 12px;
+      color: var(--text);
+      font-family: inherit;
       outline: none;
       cursor: pointer;
-      transition: border-color .15s;
+      transition: border-color .14s;
     }
-    #model-select:focus  { border-color: var(--accent); }
-    #model-select:disabled { opacity: .45; cursor: not-allowed; }
+    #model-select:focus    { border-color: var(--accent); }
+    #model-select:disabled { opacity: .38; cursor: not-allowed; }
+    #model-select option   { background: var(--card); }
 
-    /* Ollama custom URL */
     #ollama-url-wrap {
       display: none;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 7px;
     }
-    #ollama-url-wrap span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    #ollama-url-wrap span { font-size: 11px; color: var(--text-muted); }
     #ollama-url {
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      padding: 4px 8px;
-      font-size: 12px;
-      color: #0f172a;
+      width: 100%;
       background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 7px 9px;
+      font-size: 12px;
+      color: var(--text);
+      font-family: inherit;
       outline: none;
-      width: 200px;
-      transition: border-color .15s;
+      transition: border-color .14s;
     }
-    #ollama-url:focus   { border-color: var(--accent); }
-    #ollama-url:disabled { opacity: .45; cursor: not-allowed; }
+    #ollama-url:focus    { border-color: var(--accent); }
+    #ollama-url:disabled { opacity: .38; }
 
-    /* Locked indicator */
+    /* Session lock */
     #session-lock {
       display: none;
       align-items: center;
-      gap: 5px;
-      margin-left: auto;
+      gap: 6px;
+      padding: 7px 9px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(99,102,241,.22);
+      border-radius: var(--r);
       font-size: 11px;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
+      color: #a5b4fc;
+      margin-top: 8px;
     }
     #session-lock.visible { display: flex; }
-    #session-lock .lock-icon { font-size: 10px; }
 
-    /* Provider pill (shown when locked) */
+    /* Active provider pill */
     #active-provider-pill {
       display: none;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      margin-top: 7px;
       font-size: 12px;
-      font-weight: 600;
-      color: #0f172a;
+      font-weight: 500;
+      color: var(--text-strong);
     }
     #active-provider-pill.visible { display: flex; }
-    .pill-dot { width: 7px; height: 7px; border-radius: 50%; }
-    .pill-dot.groq   { background: #7c3aed; }
-    .pill-dot.ollama { background: #ea580c; }
+    .pill-dot            { width: 7px; height: 7px; border-radius: 50%; }
+    .pill-dot.groq       { background: #818cf8; box-shadow: 0 0 6px #818cf880; }
+    .pill-dot.ollama     { background: #fb923c; box-shadow: 0 0 6px #fb923c80; }
 
-    /* ── Suggestions ── */
+    /* Upload */
+    .upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: transparent;
+      transition: border-color .14s, color .14s, background .14s;
+    }
+    .upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    #file-input { display: none; }
+
+    /* File badge */
+    #file-badge {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 11px;
+      margin-top: 8px;
+    }
+
+    .badge-top { display: flex; align-items: center; gap: 9px; }
+
+    .badge-file-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 7px;
+      display: grid; place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .badge-info { flex: 1; min-width: 0; }
+    .file-name  { font-size: 12px; font-weight: 600; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .badge-actions { display: flex; gap: 5px; }
+
+    .badge-btn {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .14s, color .14s;
+    }
+    .badge-btn:hover       { border-color: var(--accent); color: var(--accent); }
+    .badge-btn.rm:hover    { border-color: var(--error);  color: var(--error);  }
+
+    /* Suggestions */
     #suggestions {
-      padding: 9px 14px 0;
-      display: flex; gap: 7px; flex-wrap: wrap; flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    .suggestion {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 20px; padding: 5px 12px;
-      font-size: 12px; color: var(--muted); cursor: pointer;
-      transition: border-color .15s, color .15s, background .15s; white-space: nowrap;
-    }
-    .suggestion:hover { border-color: var(--accent); color: var(--accent); background: #f0fdf4; }
 
-    /* ── Messages ── */
+    .suggestion {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      transition: background .12s, color .12s;
+    }
+    .suggestion:hover { background: var(--surface); color: var(--text); }
+
+    /* Sidebar footer */
+    .sb-footer {
+      padding: 10px 12px 14px;
+      border-top: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+
+    #clear-btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: border-color .14s, color .14s, background .14s;
+    }
+    #clear-btn:hover { border-color: var(--error); color: var(--error); background: rgba(248,113,113,.06); }
+
+    /* ─── Main area ──────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* Top bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      height: 44px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    #header-subtitle { font-size: 12px; color: var(--text-muted); flex: 1; }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 7px var(--success);
+    }
+
+    /* ─── Messages ───────────────────────────────────────── */
     #messages {
-      flex: 1; overflow-y: auto;
-      padding: 14px;
-      display: flex; flex-direction: column; gap: 11px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 28px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
       scroll-behavior: smooth;
     }
 
-    .msg { display: flex; gap: 9px; max-width: 780px; animation: fadein .2s ease; }
-    @keyframes fadein { from { opacity:0; transform:translateY(5px); } to { opacity:1; } }
+    .msg {
+      display: flex;
+      gap: 12px;
+      max-width: 740px;
+      animation: fadein .22s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(7px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     .msg.user  { align-self: flex-end;   flex-direction: row-reverse; }
     .msg.bot   { align-self: flex-start; }
     .msg.error { align-self: flex-start; }
 
     .avatar {
-      width: 30px; height: 30px; border-radius: 50%;
+      width: 30px; height: 30px;
+      border-radius: 50%;
       display: grid; place-items: center;
-      font-size: 13px; flex-shrink: 0; align-self: flex-end;
+      font-size: 13px;
+      flex-shrink: 0;
+      align-self: flex-end;
     }
-    .msg.user .avatar { background: var(--user-bg); color: #fff; }
-    .msg.bot  .avatar { background: #e2e8f0; color: #475569; }
+    .msg.user  .avatar { background: linear-gradient(135deg, var(--user-from), var(--user-to)); color: #fff; }
+    .msg.bot   .avatar { background: var(--surface); border: 1px solid var(--border); color: #8b8fa8; font-size: 15px; }
+    .msg.error .avatar { background: rgba(248,113,113,.1); color: var(--error); }
 
     .bubble {
-      padding: 10px 14px; border-radius: var(--radius);
-      font-size: 13.5px; line-height: 1.65;
-      box-shadow: var(--shadow); max-width: 650px;
+      padding: 11px 15px;
+      border-radius: var(--r-lg);
+      font-size: 13.5px;
+      line-height: 1.72;
+      max-width: 630px;
     }
-    .msg.user  .bubble { background: var(--user-bg); color: var(--user-text); border-bottom-right-radius: 4px; }
-    .msg.bot   .bubble { background: var(--bot-bg); color: var(--bot-text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-    .msg.error .bubble { background: #fef2f2; border: 1px solid #fecaca; color: var(--error); border-bottom-left-radius: 4px; }
 
-    .bubble h1, .bubble h2, .bubble h3 { margin: .7em 0 .3em; line-height: 1.3; }
+    .msg.user  .bubble {
+      background: linear-gradient(135deg, var(--user-from), var(--user-to));
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 22px rgba(79,70,229,.28);
+    }
+    .msg.bot   .bubble {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+    .msg.error .bubble {
+      background: rgba(248,113,113,.07);
+      border: 1px solid rgba(248,113,113,.2);
+      color: var(--error);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* Markdown */
+    .bubble h1,.bubble h2,.bubble h3 { margin: .7em 0 .3em; color: var(--text-strong); }
     .bubble h1 { font-size: 1.05em; } .bubble h2 { font-size: 1em; } .bubble h3 { font-size: .95em; }
     .bubble p  { margin: .35em 0; }
-    .bubble ul, .bubble ol { margin: .35em 0 .35em 1.3em; }
-    .bubble li { margin: .18em 0; }
-    .bubble strong { font-weight: 600; }
-    .bubble code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-family: "SF Mono", Menlo, monospace; font-size: .87em; }
-    .bubble pre  { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; overflow-x: auto; margin: .5em 0; }
-    .bubble pre code { background: none; padding: 0; }
-    .bubble table { border-collapse: collapse; width: 100%; margin: .55em 0; font-size: .9em; }
-    .bubble th, .bubble td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
-    .bubble th { background: #f8fafc; font-weight: 600; }
+    .bubble ul,.bubble ol { margin: .35em 0 .35em 1.4em; }
+    .bubble li { margin: .2em 0; }
+    .bubble strong { font-weight: 600; color: var(--text-strong); }
+    .bubble code   { background: rgba(255,255,255,.07); border-radius: 4px; padding: 1px 6px; font-family: "SF Mono","Fira Code",monospace; font-size: .85em; }
+    .msg.user .bubble code { background: rgba(255,255,255,.18); }
+    .bubble pre     { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; overflow-x: auto; margin: .55em 0; }
+    .bubble pre code{ background: none; padding: 0; }
+    .bubble table   { border-collapse: collapse; width: 100%; margin: .55em 0; font-size: .9em; }
+    .bubble th,.bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+    .bubble th      { background: var(--card); font-weight: 600; color: var(--text-strong); }
 
-    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 14px; }
-    .typing span { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: bounce .9s infinite; }
+    /* Typing */
+    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 15px; }
+    .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce .9s infinite; }
     .typing span:nth-child(2) { animation-delay: .15s; }
-    .typing span:nth-child(3) { animation-delay: .3s; }
-    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    .typing span:nth-child(3) { animation-delay: .30s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
-    /* ── Input bar ── */
+    /* System message */
+    .sys-msg {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 2px 0;
+    }
+
+    /* Empty state */
+    #empty-state { margin: auto; text-align: center; padding: 40px 20px; }
+    #empty-state .es-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      border-radius: 18px;
+      display: grid; place-items: center;
+      font-size: 28px;
+      margin: 0 auto 18px;
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    #empty-state h2 { font-size: 20px; font-weight: 700; color: var(--text-strong); margin-bottom: 8px; }
+    #empty-state p  { font-size: 13.5px; color: var(--text-muted); max-width: 300px; line-height: 1.65; }
+
+    /* ─── Input bar ──────────────────────────────────────── */
     #input-bar {
-      background: var(--surface); border-top: 1px solid var(--border);
-      padding: 10px 14px; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
+      padding: 10px 20px 18px;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .input-shell {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 10px 12px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .input-shell:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
     }
 
     #input {
-      flex: 1; border: 1.5px solid var(--border); border-radius: 11px;
-      padding: 9px 13px; font-size: 13.5px; font-family: inherit;
-      resize: none; outline: none; max-height: 130px; line-height: 1.5;
-      transition: border-color .15s; color: #0f172a;
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-strong);
+      resize: none;
+      max-height: 130px;
+      line-height: 1.55;
     }
-    #input:focus { border-color: var(--accent); }
-    #input::placeholder { color: #94a3b8; }
+    #input::placeholder { color: var(--text-muted); }
 
     #send-btn {
-      width: 40px; height: 40px; border: none; border-radius: 11px;
-      background: var(--accent); color: #fff;
-      cursor: pointer; display: grid; place-items: center; flex-shrink: 0;
-      transition: background .15s, transform .1s;
+      width: 36px; height: 36px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      color: #fff;
+      cursor: pointer;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+      transition: opacity .14s, transform .1s, box-shadow .14s;
+      box-shadow: 0 2px 12px var(--accent-glow);
     }
-    #send-btn:hover  { background: var(--accent-hover); }
-    #send-btn:active { transform: scale(.94); }
-    #send-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+    #send-btn:hover    { opacity: .9; box-shadow: 0 4px 20px rgba(99,102,241,.55); }
+    #send-btn:active   { transform: scale(.91); }
+    #send-btn:disabled { background: var(--card); box-shadow: none; cursor: not-allowed; }
 
-    #clear-btn {
-      background: none; border: 1.5px solid var(--border); border-radius: 11px;
-      padding: 0 11px; height: 40px; font-size: 12px; color: var(--muted);
-      cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s;
-    }
-    #clear-btn:hover { border-color: var(--error); color: var(--error); }
-
-    /* ── Empty state ── */
-    #empty-state { margin: auto; text-align: center; padding: 28px 16px; }
-    #empty-state .icon { font-size: 44px; margin-bottom: 10px; }
-    #empty-state h2 { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
-    #empty-state p  { font-size: 13px; color: var(--muted); max-width: 320px; }
-
-    /* ── Drag overlay ── */
+    /* ─── Drag overlay ───────────────────────────────────── */
     #drag-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(22,163,74,.12); border: 3px dashed var(--accent);
-      z-index: 100; pointer-events: none;
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(99,102,241,.07);
+      border: 2px dashed var(--accent);
+      z-index: 100;
+      pointer-events: none;
       align-items: center; justify-content: center;
-      flex-direction: column; gap: 10px;
-      font-size: 18px; font-weight: 700; color: var(--accent);
+      flex-direction: column; gap: 14px;
+      font-size: 20px; font-weight: 700; color: var(--accent);
+      backdrop-filter: blur(6px);
     }
     #drag-overlay.active { display: flex; }
+
+    /* ─── Hidden provider-bar (JS hook, not rendered) ─────── */
+    #provider-bar { display: none; }
+
+    /* ─── Mobile ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      #messages { padding: 16px 12px 8px; }
+      #input-bar { padding: 8px 12px 14px; }
+    }
   </style>
 </head>
 <body>
 
+<!-- Drag-and-drop overlay -->
 <div id="drag-overlay">
-  <div style="font-size:42px">📂</div>
-  Drop CSV or Excel file here
+  <div style="font-size:50px">📂</div>
+  Drop your CSV or Excel file here
 </div>
 
-<!-- ── Header ── -->
-<header>
-  <div class="logo">💰</div>
-  <div class="header-text">
-    <h1>Finance Agent</h1>
-    <p id="header-subtitle">Choose a provider below to start</p>
+<!-- Hidden provider-bar kept for any legacy JS refs -->
+<div id="provider-bar"></div>
+
+<!-- ─── Sidebar ──────────────────────────────────────────── -->
+<aside class="sidebar">
+
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-gem">💎</div>
+    <div class="logo-copy">
+      <h1>Finance Agent</h1>
+      <p id="header-subtitle">Loading…</p>
+    </div>
   </div>
 
-  <div class="header-actions">
-    <div id="file-badge">
-      <span>📄</span>
-      <span class="file-name" id="badge-name">file.csv</span>
-      <span class="file-meta" id="badge-meta"></span>
-      <div class="vdiv"></div>
-      <button class="badge-btn" onclick="downloadFile('csv')" title="Download CSV">⬇ CSV</button>
-      <button class="badge-btn" onclick="downloadFile('xlsx')" title="Download Excel">⬇ Excel</button>
-      <div class="vdiv"></div>
-      <button class="badge-btn" onclick="clearFile()" title="Remove file">✕</button>
+  <!-- Provider -->
+  <div class="sb-section">
+    <div class="sb-label">Provider</div>
+
+    <div class="provider-tabs">
+      <button class="ptab active" id="tab-groq"   onclick="selectProvider('groq')">☁ Groq</button>
+      <button class="ptab"        id="tab-ollama" onclick="selectProvider('ollama')">⬡ Ollama</button>
     </div>
 
-    <label class="upload-btn" id="upload-label" for="file-input" title="Upload CSV or Excel">
+    <select id="model-select" title="Model"></select>
+
+    <div id="ollama-url-wrap">
+      <span>Ollama URL</span>
+      <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
+    </div>
+
+    <div id="session-lock">
+      <span>🔒</span>
+      <span>Locked for this session — click <strong>New chat</strong> to switch</span>
+    </div>
+
+    <div id="active-provider-pill">
+      <div class="pill-dot" id="pill-dot"></div>
+      <span id="pill-label"></span>
+      <span style="color:var(--text-muted);font-size:11px;font-weight:400" id="pill-model"></span>
+    </div>
+  </div>
+
+  <!-- Data / file -->
+  <div class="sb-section">
+    <div class="sb-label">Data</div>
+
+    <label class="upload-btn" id="upload-label" for="file-input">
       📎 Upload CSV / Excel
     </label>
     <input id="file-input" type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(this)" />
 
+    <div id="file-badge">
+      <div class="badge-top">
+        <div class="badge-file-icon">📄</div>
+        <div class="badge-info">
+          <div class="file-name" id="badge-name">file.csv</div>
+          <div class="file-meta" id="badge-meta"></div>
+        </div>
+      </div>
+      <div class="badge-actions">
+        <button class="badge-btn" onclick="downloadFile('csv')">⬇ CSV</button>
+        <button class="badge-btn" onclick="downloadFile('xlsx')">⬇ Excel</button>
+        <button class="badge-btn rm" onclick="clearFile()">✕ Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick questions -->
+  <div class="sb-section grow">
+    <div class="sb-label">Quick questions</div>
+    <div id="suggestions">
+      <button class="suggestion" onclick="suggest(this)">📊 Spending last month</button>
+      <button class="suggestion" onclick="suggest(this)">🏪 Top merchants</button>
+      <button class="suggestion" onclick="suggest(this)">🔁 Recurring subscriptions</button>
+      <button class="suggestion" onclick="suggest(this)">📅 Monthly summary</button>
+      <button class="suggestion" onclick="suggest(this)">🔍 Search for coffee</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="sb-footer">
+    <button id="clear-btn" onclick="clearChat()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New chat
+    </button>
+  </div>
+
+</aside>
+
+<!-- ─── Main area ─────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <span id="header-subtitle-top" style="font-size:12px;color:var(--text-muted);flex:1"></span>
     <div class="status-dot" title="Connected"></div>
   </div>
-</header>
 
-<!-- ── Provider bar ── -->
-<div id="provider-bar">
-  <label>Provider</label>
-
-  <div class="provider-tabs">
-    <button class="ptab active" id="tab-groq"   onclick="selectProvider('groq')">☁️ Groq</button>
-    <button class="ptab"        id="tab-ollama" onclick="selectProvider('ollama')">🖥️ Ollama (local)</button>
+  <!-- Messages -->
+  <div id="messages">
+    <div id="empty-state">
+      <div class="es-icon">📈</div>
+      <h2>Ask about your finances</h2>
+      <p>Upload a CSV or Excel file on the left, then ask anything about your spending, budgets, or transactions.</p>
+    </div>
   </div>
 
-  <select id="model-select" title="Model"></select>
-
-  <div id="ollama-url-wrap">
-    <span>URL</span>
-    <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
+  <!-- Input -->
+  <div id="input-bar">
+    <div class="input-shell">
+      <textarea
+        id="input" rows="1"
+        placeholder="Ask about your spending, budgets, transactions…"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button id="send-btn" onclick="send()" title="Send (Enter)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Shown once a session is active -->
-  <div id="session-lock">
-    <span class="lock-icon">🔒</span>
-    <span>Locked for this session — click <strong>New chat</strong> to switch</span>
-  </div>
-
-  <div id="active-provider-pill">
-    <div class="pill-dot" id="pill-dot"></div>
-    <span id="pill-label"></span>
-    <span style="color:var(--muted); font-size:11px; font-weight:400" id="pill-model"></span>
-  </div>
-</div>
-
-<!-- ── Suggestions ── -->
-<div id="suggestions">
-  <button class="suggestion" onclick="suggest(this)">📊 Spending last month</button>
-  <button class="suggestion" onclick="suggest(this)">🏪 Top merchants</button>
-  <button class="suggestion" onclick="suggest(this)">🔁 Recurring subscriptions</button>
-  <button class="suggestion" onclick="suggest(this)">📅 Monthly summary</button>
-  <button class="suggestion" onclick="suggest(this)">🔍 Search for coffee</button>
-</div>
-
-<!-- ── Messages ── -->
-<div id="messages">
-  <div id="empty-state">
-    <div class="icon">📈</div>
-    <h2>Ask about your finances</h2>
-    <p>Select a provider above, then ask anything about your spending, budgets, or transactions.</p>
-  </div>
-</div>
-
-<!-- ── Input bar ── -->
-<div id="input-bar">
-  <button id="clear-btn" onclick="clearChat()">New chat</button>
-  <textarea
-    id="input" rows="1"
-    placeholder="Ask about your spending, budgets, transactions…"
-    onkeydown="handleKey(event)"
-    oninput="autoResize(this)"
-  ></textarea>
-  <button id="send-btn" onclick="send()" title="Send (Enter)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13"></line>
-      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-    </svg>
-  </button>
 </div>
 
 <script>
@@ -419,8 +673,8 @@
   let busy     = false;
   let sessionStarted = false;
 
-  let providerData   = {};     // fetched from /api/providers
-  let activeProvider = 'groq'; // 'groq' | 'ollama'
+  let providerData   = {};
+  let activeProvider = 'groq';
 
   const messagesEl  = document.getElementById('messages');
   const inputEl     = document.getElementById('input');
@@ -448,7 +702,6 @@
       };
     }
 
-    // Disable Groq tab if key not set
     const groqAvail = providerData.groq?.available ?? true;
     if (!groqAvail) {
       document.getElementById('tab-groq').disabled = true;
@@ -478,7 +731,6 @@
     if (data.default_model) modelSel.value = data.default_model;
 
     ollamaWrap.style.display = p === 'ollama' ? 'flex' : 'none';
-
     updateHeaderSubtitle();
   }
 
@@ -492,7 +744,6 @@
   modelSel.addEventListener('change', updateHeaderSubtitle);
 
   // ── Lock / unlock provider controls ──────────────────────────────────────
-
   function lockProvider() {
     sessionStarted = true;
     document.getElementById('tab-groq').disabled   = true;
@@ -501,16 +752,14 @@
     ollamaUrl.disabled  = true;
     sessionLock.classList.add('visible');
 
-    // Show pill
     provPill.classList.add('visible');
     document.getElementById('pill-dot').className = `pill-dot ${activeProvider}`;
     document.getElementById('pill-label').textContent =
-      activeProvider === 'groq' ? '☁️ Groq' : '🖥️ Ollama';
-    document.getElementById('pill-model').textContent = '· ' + modelSel.value;
+      activeProvider === 'groq' ? '☁ Groq' : '⬡ Ollama';
+    document.getElementById('pill-model').textContent = ' · ' + modelSel.value;
 
     const sub = document.getElementById('header-subtitle');
-    sub.textContent = activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)';
-    sub.textContent += ' · ' + modelSel.value;
+    sub.textContent = (activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)') + ' · ' + modelSel.value;
   }
 
   function unlockProvider() {
@@ -526,7 +775,6 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 130) + 'px';
@@ -546,7 +794,6 @@
   function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
   // ── Messages ──────────────────────────────────────────────────────────────
-
   function addMessage(role, content) {
     document.getElementById('empty-state')?.remove();
     suggestions.style.display = 'none';
@@ -556,7 +803,7 @@
 
     const avatar = document.createElement('div');
     avatar.className = 'avatar';
-    avatar.textContent = role === 'user' ? '🧑' : role === 'bot' ? '🤖' : '⚠️';
+    avatar.textContent = role === 'user' ? '🧑' : role === 'bot' ? '✦' : '⚠';
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
@@ -575,9 +822,8 @@
 
   function addSystemMessage(md) {
     document.getElementById('empty-state')?.remove();
-    suggestions.style.display = 'none';
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'text-align:center;font-size:12px;color:var(--muted);padding:2px 0;';
+    wrap.className = 'sys-msg';
     wrap.innerHTML = marked.parseInline(md);
     messagesEl.appendChild(wrap);
     scrollBottom();
@@ -587,7 +833,7 @@
     const msg = document.createElement('div');
     msg.className = 'msg bot'; msg.id = 'typing-indicator';
     const avatar = document.createElement('div');
-    avatar.className = 'avatar'; avatar.textContent = '🤖';
+    avatar.className = 'avatar'; avatar.textContent = '✦';
     const bubble = document.createElement('div');
     bubble.className = 'bubble typing';
     bubble.innerHTML = '<span></span><span></span><span></span>';
@@ -598,7 +844,6 @@
   function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
 
   // ── Provider config for request ───────────────────────────────────────────
-
   function getProviderConfig() {
     return {
       type:       activeProvider,
@@ -608,7 +853,6 @@
   }
 
   // ── Chat ──────────────────────────────────────────────────────────────────
-
   async function send() {
     if (busy) return;
     const message = inputEl.value.trim();
@@ -659,17 +903,17 @@
     history = []; context = {};
     messagesEl.innerHTML = `
       <div id="empty-state">
-        <div class="icon">📈</div>
+        <div class="es-icon">📈</div>
         <h2>Ask about your finances</h2>
-        <p>Select a provider above, then ask anything about your spending, budgets, or transactions.</p>
+        <p>Upload a CSV or Excel file on the left, then ask anything about your spending, budgets, or transactions.</p>
       </div>`;
     suggestions.style.display = 'flex';
+    suggestions.style.flexDirection = 'column';
     unlockProvider();
     inputEl.focus();
   }
 
   // ── File upload ───────────────────────────────────────────────────────────
-
   async function handleUpload(input) {
     const file = input.files[0];
     if (!file) return;
@@ -722,7 +966,6 @@
   }
 
   // ── Drag-and-drop ─────────────────────────────────────────────────────────
-
   const overlay = document.getElementById('drag-overlay');
   let dragCount = 0;
 
