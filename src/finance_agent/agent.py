@@ -202,6 +202,9 @@ def run_turn(
         m for m in messages
         if m.get("role") in ("user", "assistant") and "tool_calls" not in m
     ]
+    # Keep only the last 10 messages (~5 turns) to avoid 413 "request too large"
+    # errors on models with low TPM limits (e.g. Groq free tier).
+    clean_history = clean_history[-10:]
     messages = clean_history + [{"role": "user", "content": user_input}]
     last_tool_args: dict = {}
 
@@ -219,8 +222,8 @@ def run_turn(
             except Exception as exc:
                 status = getattr(exc, "status_code", None)
                 err = str(exc)
-                if status == 429 or "rate_limit" in err:
-                    # Back off and retry on rate-limit errors
+                if status in (429, 413) or "rate_limit" in err or "too large" in err:
+                    # Back off and retry on rate-limit / oversized-request errors
                     wait = 15 * (attempt + 1)
                     time.sleep(wait)
                     if attempt == 2:
