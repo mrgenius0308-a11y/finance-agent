@@ -10,25 +10,46 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #09090f;
-      --sidebar-bg:   #0e0e17;
-      --surface:      #14141f;
-      --card:         #1a1a28;
-      --border:       #252535;
-      --border-soft:  #1e1e2e;
-      --accent:       #6366f1;
-      --accent-dim:   rgba(99,102,241,.12);
-      --accent-glow:  rgba(99,102,241,.35);
-      --accent-hover: #4f46e5;
-      --success:      #34d399;
-      --error:        #f87171;
-      --text:         #c9d1e0;
-      --text-strong:  #e8ecf4;
-      --text-muted:   #636b7e;
-      --user-from:    #4f46e5;
-      --user-to:      #7c3aed;
-      --r:            8px;
-      --r-lg:         14px;
+      /* Base palette */
+      --bg:             #0a0a12;
+      --sidebar-bg:     #0d0d18;
+      --surface:        #12121e;
+      --card:           #181826;
+      --border:         #22223a;
+      --border-soft:    #1a1a2e;
+
+      /* Accent */
+      --accent:         #5b6af7;
+      --accent-dim:     rgba(91,106,247,.11);
+      --accent-glow:    rgba(91,106,247,.32);
+      --accent-hover:   #4a58e6;
+      --accent-text:    #8b97fb;
+
+      /* Semantic */
+      --success:        #34d399;
+      --success-dim:    rgba(52,211,153,.12);
+      --error:          #f87171;
+      --error-dim:      rgba(248,113,113,.08);
+      --warn:           #fbbf24;
+
+      /* Text */
+      --text:           #c4cde0;
+      --text-strong:    #e6ecf6;
+      --text-muted:     #5a6278;
+
+      /* User bubble */
+      --user-from:      #4a58e6;
+      --user-to:        #7c3aed;
+
+      /* Radii */
+      --r:              8px;
+      --r-lg:           14px;
+      --r-xl:           18px;
+
+      /* Transitions */
+      --t-fast:         150ms ease;
+      --t-med:          200ms ease;
+      --t-slow:         250ms ease;
     }
 
     body {
@@ -40,30 +61,31 @@
       overflow: hidden;
     }
 
-    /* ─── Scrollbars ─────────────────────────────────────── */
+    /* ─── Scrollbars ─────────────────────────────────────────── */
     ::-webkit-scrollbar            { width: 4px; }
     ::-webkit-scrollbar-track      { background: transparent; }
     ::-webkit-scrollbar-thumb      { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover{ background: #353550; }
+    ::-webkit-scrollbar-thumb:hover{ background: #2e2e50; }
 
-    /* ─── Sidebar ────────────────────────────────────────── */
+    /* ─── Sidebar ────────────────────────────────────────────── */
     .sidebar {
-      width: 252px;
-      min-width: 252px;
+      width: 260px;
+      min-width: 260px;
       background: var(--sidebar-bg);
       border-right: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       height: 100%;
       overflow: hidden;
+      transition: width var(--t-slow), min-width var(--t-slow);
     }
 
     /* Logo */
     .sidebar-logo {
-      padding: 18px 14px 14px;
+      padding: 18px 16px 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
       border-bottom: 1px solid var(--border-soft);
       flex-shrink: 0;
     }
@@ -78,12 +100,12 @@
       box-shadow: 0 0 18px var(--accent-glow);
     }
 
-    .logo-copy h1 { font-size: 14px; font-weight: 700; color: var(--text-strong); }
+    .logo-copy h1 { font-size: 14px; font-weight: 700; color: var(--text-strong); letter-spacing: -.01em; }
     .logo-copy p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
 
-    /* Sections */
+    /* Sidebar sections */
     .sb-section {
-      padding: 14px 12px 12px;
+      padding: 14px 13px 12px;
       flex-shrink: 0;
     }
     .sb-section + .sb-section { border-top: 1px solid var(--border-soft); }
@@ -119,7 +141,7 @@
       background: transparent;
       border: none;
       font-family: inherit;
-      transition: background .14s, color .14s;
+      transition: background var(--t-fast), color var(--t-fast);
     }
     .ptab:not(:last-child) { border-right: 1px solid var(--border); }
     .ptab.active           { background: var(--accent); color: #fff; }
@@ -136,7 +158,7 @@
       font-family: inherit;
       outline: none;
       cursor: pointer;
-      transition: border-color .14s;
+      transition: border-color var(--t-fast);
     }
     #model-select:focus    { border-color: var(--accent); }
     #model-select:disabled { opacity: .38; cursor: not-allowed; }
@@ -159,25 +181,35 @@
       color: var(--text);
       font-family: inherit;
       outline: none;
-      transition: border-color .14s;
+      transition: border-color var(--t-fast);
     }
     #ollama-url:focus    { border-color: var(--accent); }
     #ollama-url:disabled { opacity: .38; }
 
-    /* Session lock */
+    /* ── State: session-locked ─────────────────────────────── */
     #session-lock {
       display: none;
       align-items: center;
-      gap: 6px;
-      padding: 7px 9px;
+      gap: 7px;
+      padding: 8px 10px;
       background: var(--accent-dim);
-      border: 1px solid rgba(99,102,241,.22);
+      border: 1px solid rgba(91,106,247,.22);
       border-radius: var(--r);
       font-size: 11px;
-      color: #a5b4fc;
+      color: var(--accent-text);
       margin-top: 8px;
+      transition: opacity var(--t-med);
     }
     #session-lock.visible { display: flex; }
+
+    .lock-icon {
+      width: 18px; height: 18px;
+      background: rgba(91,106,247,.18);
+      border-radius: 4px;
+      display: grid; place-items: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
 
     /* Active provider pill */
     #active-provider-pill {
@@ -190,18 +222,18 @@
       color: var(--text-strong);
     }
     #active-provider-pill.visible { display: flex; }
-    .pill-dot            { width: 7px; height: 7px; border-radius: 50%; }
+    .pill-dot            { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .pill-dot.groq       { background: #818cf8; box-shadow: 0 0 6px #818cf880; }
     .pill-dot.ollama     { background: #fb923c; box-shadow: 0 0 6px #fb923c80; }
 
-    /* Upload */
+    /* ── Upload button (idle state) ──────────────────────────── */
     .upload-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
       width: 100%;
-      padding: 8px 12px;
+      padding: 9px 12px;
       border: 1.5px dashed var(--border);
       border-radius: var(--r);
       font-size: 12px;
@@ -209,12 +241,58 @@
       color: var(--text-muted);
       cursor: pointer;
       background: transparent;
-      transition: border-color .14s, color .14s, background .14s;
+      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
     }
     .upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
     #file-input { display: none; }
 
-    /* File badge */
+    /* ── State: uploading ─────────────────────────────────────── */
+    .upload-btn.uploading {
+      border-style: solid;
+      border-color: var(--accent);
+      color: var(--accent-text);
+      background: var(--accent-dim);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .upload-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(91,106,247,.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress bar */
+    .upload-progress-wrap {
+      display: none;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    .upload-progress-wrap.visible { display: block; }
+    .upload-progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width var(--t-slow);
+      border-radius: 2px;
+    }
+    .upload-progress-bar.indeterminate {
+      width: 40%;
+      animation: progress-slide 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes progress-slide {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(250%); }
+    }
+
+    /* ── State: file-loaded (file badge) ─────────────────────── */
     #file-badge {
       display: none;
       flex-direction: column;
@@ -224,7 +302,9 @@
       border-radius: var(--r);
       padding: 10px 11px;
       margin-top: 8px;
+      animation: fadein var(--t-med);
     }
+    #file-badge.visible { display: flex; }
 
     .badge-top { display: flex; align-items: center; gap: 9px; }
 
@@ -254,7 +334,7 @@
       color: var(--text-muted);
       cursor: pointer;
       font-family: inherit;
-      transition: border-color .14s, color .14s;
+      transition: border-color var(--t-fast), color var(--t-fast);
     }
     .badge-btn:hover       { border-color: var(--accent); color: var(--accent); }
     .badge-btn.rm:hover    { border-color: var(--error);  color: var(--error);  }
@@ -283,13 +363,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
-      transition: background .12s, color .12s;
+      transition: background var(--t-fast), color var(--t-fast);
     }
     .suggestion:hover { background: var(--surface); color: var(--text); }
 
     /* Sidebar footer */
     .sb-footer {
-      padding: 10px 12px 14px;
+      padding: 10px 13px 14px;
       border-top: 1px solid var(--border-soft);
       flex-shrink: 0;
     }
@@ -308,18 +388,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: border-color .14s, color .14s, background .14s;
+      gap: 7px;
+      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
     }
-    #clear-btn:hover { border-color: var(--error); color: var(--error); background: rgba(248,113,113,.06); }
+    #clear-btn:hover { border-color: var(--error); color: var(--error); background: var(--error-dim); }
 
-    /* ─── Main area ──────────────────────────────────────── */
+    /* ─── Main area ──────────────────────────────────────────── */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       background: var(--bg);
+      min-width: 0;
     }
 
     /* Top bar */
@@ -327,23 +408,27 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 0 20px;
+      padding: 0 22px;
       height: 44px;
       border-bottom: 1px solid var(--border-soft);
       flex-shrink: 0;
       background: var(--bg);
     }
 
-    #header-subtitle { font-size: 12px; color: var(--text-muted); flex: 1; }
+    #header-subtitle { font-size: 12px; color: var(--text-muted); flex: 1; transition: color var(--t-med); }
 
     .status-dot {
       width: 7px; height: 7px;
       background: var(--success);
       border-radius: 50%;
       box-shadow: 0 0 7px var(--success);
+      transition: background var(--t-med), box-shadow var(--t-med);
     }
+    .status-dot.error  { background: var(--error); box-shadow: 0 0 7px var(--error); }
+    .status-dot.busy   { background: var(--warn);  box-shadow: 0 0 7px var(--warn); animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
 
-    /* ─── Messages ───────────────────────────────────────── */
+    /* ─── Messages ───────────────────────────────────────────── */
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -357,8 +442,8 @@
     .msg {
       display: flex;
       gap: 12px;
-      max-width: 740px;
-      animation: fadein .22s ease;
+      max-width: 760px;
+      animation: fadein var(--t-med) ease;
     }
     @keyframes fadein {
       from { opacity: 0; transform: translateY(7px); }
@@ -379,21 +464,21 @@
     }
     .msg.user  .avatar { background: linear-gradient(135deg, var(--user-from), var(--user-to)); color: #fff; }
     .msg.bot   .avatar { background: var(--surface); border: 1px solid var(--border); color: #8b8fa8; font-size: 15px; }
-    .msg.error .avatar { background: rgba(248,113,113,.1); color: var(--error); }
+    .msg.error .avatar { background: var(--error-dim); color: var(--error); border: 1px solid rgba(248,113,113,.15); }
 
     .bubble {
       padding: 11px 15px;
       border-radius: var(--r-lg);
       font-size: 13.5px;
       line-height: 1.72;
-      max-width: 630px;
+      max-width: 640px;
     }
 
     .msg.user  .bubble {
       background: linear-gradient(135deg, var(--user-from), var(--user-to));
       color: #fff;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 22px rgba(79,70,229,.28);
+      box-shadow: 0 4px 22px rgba(74,88,230,.25);
     }
     .msg.bot   .bubble {
       background: var(--surface);
@@ -401,14 +486,15 @@
       border: 1px solid var(--border);
       border-bottom-left-radius: 4px;
     }
+    /* ── State: error message ──────────────────────────────── */
     .msg.error .bubble {
-      background: rgba(248,113,113,.07);
-      border: 1px solid rgba(248,113,113,.2);
+      background: var(--error-dim);
+      border: 1px solid rgba(248,113,113,.18);
       color: var(--error);
       border-bottom-left-radius: 4px;
     }
 
-    /* Markdown */
+    /* Markdown inside bubbles */
     .bubble h1,.bubble h2,.bubble h3 { margin: .7em 0 .3em; color: var(--text-strong); }
     .bubble h1 { font-size: 1.05em; } .bubble h2 { font-size: 1em; } .bubble h3 { font-size: .95em; }
     .bubble p  { margin: .35em 0; }
@@ -423,12 +509,12 @@
     .bubble th,.bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
     .bubble th      { background: var(--card); font-weight: 600; color: var(--text-strong); }
 
-    /* Typing */
-    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 15px; }
-    .typing span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce .9s infinite; }
-    .typing span:nth-child(2) { animation-delay: .15s; }
-    .typing span:nth-child(3) { animation-delay: .30s; }
-    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+    /* ── State: thinking / typing indicator ────────────────── */
+    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 16px; }
+    .typing span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; opacity: .5; animation: bounce .9s infinite; }
+    .typing span:nth-child(2) { animation-delay: .18s; }
+    .typing span:nth-child(3) { animation-delay: .36s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
 
     /* System message */
     .sys-msg {
@@ -438,23 +524,49 @@
       padding: 2px 0;
     }
 
-    /* Empty state */
-    #empty-state { margin: auto; text-align: center; padding: 40px 20px; }
-    #empty-state .es-icon {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, var(--accent), #7c3aed);
-      border-radius: 18px;
-      display: grid; place-items: center;
-      font-size: 28px;
-      margin: 0 auto 18px;
-      box-shadow: 0 0 40px var(--accent-glow);
+    /* ── State: empty ────────────────────────────────────────── */
+    #empty-state {
+      margin: auto;
+      text-align: center;
+      padding: 48px 24px;
+      animation: fadein var(--t-slow);
     }
-    #empty-state h2 { font-size: 20px; font-weight: 700; color: var(--text-strong); margin-bottom: 8px; }
-    #empty-state p  { font-size: 13.5px; color: var(--text-muted); max-width: 300px; line-height: 1.65; }
+    #empty-state .es-icon {
+      width: 68px; height: 68px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      border-radius: var(--r-xl);
+      display: grid; place-items: center;
+      font-size: 30px;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 48px var(--accent-glow);
+    }
+    #empty-state h2 { font-size: 21px; font-weight: 700; color: var(--text-strong); margin-bottom: 9px; letter-spacing: -.02em; }
+    #empty-state p  { font-size: 13.5px; color: var(--text-muted); max-width: 310px; line-height: 1.65; }
 
-    /* ─── Input bar ──────────────────────────────────────── */
+    /* ── Quick-start chips inside empty state ─────────────── */
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 22px;
+    }
+    .quick-chip {
+      padding: 6px 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+    }
+    .quick-chip:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-dim); }
+
+    /* ─── Input bar ──────────────────────────────────────────── */
     #input-bar {
-      padding: 10px 20px 18px;
+      padding: 10px 22px 18px;
       flex-shrink: 0;
       background: var(--bg);
     }
@@ -467,11 +579,15 @@
       border: 1.5px solid var(--border);
       border-radius: var(--r-lg);
       padding: 10px 12px;
-      transition: border-color .15s, box-shadow .15s;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
     }
     .input-shell:focus-within {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .input-shell.disabled {
+      opacity: .5;
+      pointer-events: none;
     }
 
     #input {
@@ -497,54 +613,98 @@
       cursor: pointer;
       display: grid; place-items: center;
       flex-shrink: 0;
-      transition: opacity .14s, transform .1s, box-shadow .14s;
+      transition: opacity var(--t-fast), transform .1s, box-shadow var(--t-fast);
       box-shadow: 0 2px 12px var(--accent-glow);
     }
-    #send-btn:hover    { opacity: .9; box-shadow: 0 4px 20px rgba(99,102,241,.55); }
+    #send-btn:hover    { opacity: .9; box-shadow: 0 4px 20px rgba(91,106,247,.5); }
     #send-btn:active   { transform: scale(.91); }
     #send-btn:disabled { background: var(--card); box-shadow: none; cursor: not-allowed; }
 
-    /* ─── Drag overlay ───────────────────────────────────── */
+    /* ─── Drag-over overlay ──────────────────────────────────── */
     #drag-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(99,102,241,.07);
-      border: 2px dashed var(--accent);
+      background: rgba(91,106,247,.06);
+      border: 2.5px dashed var(--accent);
       z-index: 100;
       pointer-events: none;
       align-items: center; justify-content: center;
       flex-direction: column; gap: 14px;
-      font-size: 20px; font-weight: 700; color: var(--accent);
-      backdrop-filter: blur(6px);
+      font-size: 19px; font-weight: 700; color: var(--accent);
+      backdrop-filter: blur(8px);
+      transition: opacity var(--t-fast);
     }
-    #drag-overlay.active { display: flex; }
+    /* ── State: drag-over ─────────────────────────────────────── */
+    #drag-overlay.active { display: flex; animation: fadein var(--t-fast); }
 
-    /* ─── Hidden provider-bar (JS hook, not rendered) ─────── */
+    .drag-icon {
+      width: 72px; height: 72px;
+      background: var(--accent-dim);
+      border: 2px solid rgba(91,106,247,.3);
+      border-radius: var(--r-xl);
+      display: grid; place-items: center;
+      font-size: 34px;
+      margin-bottom: 4px;
+    }
+
+    /* ─── Toast notifications ────────────────────────────────── */
+    #toast-root {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 200;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      animation: toast-in .2s ease;
+      max-width: 320px;
+    }
+    .toast.error  { border-color: rgba(248,113,113,.28); background: rgba(30,14,14,.9); color: var(--error); }
+    .toast.success{ border-color: rgba(52,211,153,.22); }
+    @keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ─── Hidden legacy div ──────────────────────────────────── */
     #provider-bar { display: none; }
 
-    /* ─── Mobile ─────────────────────────────────────────── */
-    @media (max-width: 600px) {
+    /* ─── Responsive: 768px ──────────────────────────────────── */
+    @media (max-width: 768px) {
       .sidebar { display: none; }
-      #messages { padding: 16px 12px 8px; }
-      #input-bar { padding: 8px 12px 14px; }
+      #messages { padding: 16px 14px 8px; }
+      #input-bar { padding: 8px 14px 14px; }
+      .top-bar   { padding: 0 16px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Drag-and-drop overlay -->
+<!-- Drag-over overlay -->
 <div id="drag-overlay">
-  <div style="font-size:50px">📂</div>
+  <div class="drag-icon">📂</div>
   Drop your CSV or Excel file here
 </div>
 
-<!-- Hidden provider-bar kept for any legacy JS refs -->
+<!-- Toast container -->
+<div id="toast-root"></div>
+
+<!-- Hidden legacy div -->
 <div id="provider-bar"></div>
 
-<!-- ─── Sidebar ──────────────────────────────────────────── -->
+<!-- ─── Sidebar ───────────────────────────────────────────────── -->
 <aside class="sidebar">
 
-  <!-- Logo -->
+  <!-- Logo / header -->
   <div class="sidebar-logo">
     <div class="logo-gem">💎</div>
     <div class="logo-copy">
@@ -553,7 +713,7 @@
     </div>
   </div>
 
-  <!-- Provider -->
+  <!-- Provider section -->
   <div class="sb-section">
     <div class="sb-label">Provider</div>
 
@@ -569,11 +729,13 @@
       <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
     </div>
 
+    <!-- ── State: session-locked ── -->
     <div id="session-lock">
-      <span>🔒</span>
-      <span>Locked for this session — click <strong>New chat</strong> to switch</span>
+      <div class="lock-icon">🔒</div>
+      <span>Locked — click <strong>New chat</strong> to switch</span>
     </div>
 
+    <!-- Active provider pill -->
     <div id="active-provider-pill">
       <div class="pill-dot" id="pill-dot"></div>
       <span id="pill-label"></span>
@@ -581,15 +743,23 @@
     </div>
   </div>
 
-  <!-- Data / file -->
+  <!-- Data / file section -->
   <div class="sb-section">
     <div class="sb-label">Data</div>
 
+    <!-- ── State: idle upload ── -->
     <label class="upload-btn" id="upload-label" for="file-input">
-      📎 Upload CSV / Excel
+      <span id="upload-label-icon">📎</span>
+      <span id="upload-label-text">Upload CSV / Excel</span>
     </label>
     <input id="file-input" type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(this)" />
 
+    <!-- Progress bar (uploading state) -->
+    <div class="upload-progress-wrap" id="upload-progress-wrap">
+      <div class="upload-progress-bar indeterminate" id="upload-progress-bar"></div>
+    </div>
+
+    <!-- ── State: file-loaded ── -->
     <div id="file-badge">
       <div class="badge-top">
         <div class="badge-file-icon">📄</div>
@@ -618,43 +788,54 @@
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Footer / new-chat -->
   <div class="sb-footer">
+    <!-- ── State: reset / new-chat ── -->
     <button id="clear-btn" onclick="clearChat()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+      </svg>
       New chat
     </button>
   </div>
 
 </aside>
 
-<!-- ─── Main area ─────────────────────────────────────────── -->
+<!-- ─── Main panel ─────────────────────────────────────────────── -->
 <div class="main">
 
   <!-- Top bar -->
   <div class="top-bar">
     <span id="header-subtitle-top" style="font-size:12px;color:var(--text-muted);flex:1"></span>
-    <div class="status-dot" title="Connected"></div>
+    <div class="status-dot" id="status-dot" title="Ready"></div>
   </div>
 
   <!-- Messages -->
   <div id="messages">
+    <!-- ── State: empty ── -->
     <div id="empty-state">
       <div class="es-icon">📈</div>
       <h2>Ask about your finances</h2>
-      <p>Upload a CSV or Excel file on the left, then ask anything about your spending, budgets, or transactions.</p>
+      <p>Upload a CSV or Excel file, then ask anything about your spending, budgets, or transactions.</p>
+      <div class="quick-chips">
+        <button class="quick-chip" onclick="chipSend('What did I spend last month?')">Last month summary</button>
+        <button class="quick-chip" onclick="chipSend('Show me my top 5 merchants')">Top merchants</button>
+        <button class="quick-chip" onclick="chipSend('Do I have any recurring subscriptions?')">Subscriptions</button>
+        <button class="quick-chip" onclick="chipSend('How am I doing financially?')">Financial health</button>
+      </div>
     </div>
   </div>
 
-  <!-- Input -->
+  <!-- Input bar -->
   <div id="input-bar">
-    <div class="input-shell">
+    <div class="input-shell" id="input-shell">
       <textarea
         id="input" rows="1"
         placeholder="Ask about your spending, budgets, transactions…"
         onkeydown="handleKey(event)"
         oninput="autoResize(this)"
       ></textarea>
+      <!-- ── State: send button ── -->
       <button id="send-btn" onclick="send()" title="Send (Enter)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -666,11 +847,11 @@
 </div>
 
 <script>
-  // ── State ────────────────────────────────────────────────────────────────
-  let history  = [];
-  let context  = {};
-  let fileId   = null;
-  let busy     = false;
+  // ── State ─────────────────────────────────────────────────────────────────
+  let history        = [];
+  let context        = {};
+  let fileId         = null;
+  let busy           = false;
   let sessionStarted = false;
 
   let providerData   = {};
@@ -687,8 +868,26 @@
   const ollamaUrl   = document.getElementById('ollama-url');
   const sessionLock = document.getElementById('session-lock');
   const provPill    = document.getElementById('active-provider-pill');
+  const statusDot   = document.getElementById('status-dot');
+  const inputShell  = document.getElementById('input-shell');
 
   marked.setOptions({ breaks: true, gfm: true });
+
+  // ── Toast helper ──────────────────────────────────────────────────────────
+  function showToast(msg, type = '') {
+    const root  = document.getElementById('toast-root');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    root.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // ── Status dot ────────────────────────────────────────────────────────────
+  function setStatus(state) {
+    statusDot.className = 'status-dot' + (state ? ` ${state}` : '');
+    statusDot.title = state === 'busy' ? 'Thinking…' : state === 'error' ? 'Error' : 'Ready';
+  }
 
   // ── Init: load providers ──────────────────────────────────────────────────
   async function initProviders() {
@@ -697,7 +896,7 @@
       providerData = await res.json();
     } catch {
       providerData = {
-        groq:   { models: ['llama-3.1-8b-instant'], default_model: 'llama-3.1-8b-instant', available: true },
+        groq:   { models: ['llama-3.3-70b-versatile'], default_model: 'llama-3.3-70b-versatile', available: true },
         ollama: { models: ['llama3.2'], default_model: 'llama3.2', available: true },
       };
     }
@@ -719,7 +918,7 @@
     document.getElementById('tab-groq').classList.toggle('active', p === 'groq');
     document.getElementById('tab-ollama').classList.toggle('active', p === 'ollama');
 
-    const data = providerData[p] || {};
+    const data   = providerData[p] || {};
     const models = data.models || [];
 
     modelSel.innerHTML = '';
@@ -743,13 +942,13 @@
 
   modelSel.addEventListener('change', updateHeaderSubtitle);
 
-  // ── Lock / unlock provider controls ──────────────────────────────────────
+  // ── State: session-locked ────────────────────────────────────────────────
   function lockProvider() {
     sessionStarted = true;
     document.getElementById('tab-groq').disabled   = true;
     document.getElementById('tab-ollama').disabled = true;
-    modelSel.disabled   = true;
-    ollamaUrl.disabled  = true;
+    modelSel.disabled  = true;
+    ollamaUrl.disabled = true;
     sessionLock.classList.add('visible');
 
     provPill.classList.add('visible');
@@ -791,6 +990,12 @@
     inputEl.focus();
   }
 
+  function chipSend(text) {
+    inputEl.value = text;
+    autoResize(inputEl);
+    send();
+  }
+
   function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
   // ── Messages ──────────────────────────────────────────────────────────────
@@ -829,19 +1034,26 @@
     scrollBottom();
   }
 
+  // ── State: thinking indicator ─────────────────────────────────────────────
   function showTyping() {
-    const msg = document.createElement('div');
+    const msg    = document.createElement('div');
     msg.className = 'msg bot'; msg.id = 'typing-indicator';
-    const avatar = document.createElement('div');
+    const avatar  = document.createElement('div');
     avatar.className = 'avatar'; avatar.textContent = '✦';
-    const bubble = document.createElement('div');
+    const bubble  = document.createElement('div');
     bubble.className = 'bubble typing';
-    bubble.innerHTML = '<span></span><span></span><span></span>';
+    bubble.innerHTML  = '<span></span><span></span><span></span>';
     msg.appendChild(avatar); msg.appendChild(bubble);
     messagesEl.appendChild(msg); scrollBottom();
+    setStatus('busy');
+    inputShell.classList.add('disabled');
   }
 
-  function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
+  function removeTyping() {
+    document.getElementById('typing-indicator')?.remove();
+    setStatus('');
+    inputShell.classList.remove('disabled');
+  }
 
   // ── Provider config for request ───────────────────────────────────────────
   function getProviderConfig() {
@@ -852,7 +1064,7 @@
     };
   }
 
-  // ── Chat ──────────────────────────────────────────────────────────────────
+  // ── State: chat-active / send ─────────────────────────────────────────────
   async function send() {
     if (busy) return;
     const message = inputEl.value.trim();
@@ -869,9 +1081,9 @@
 
     try {
       const res = await fetch('/api/chat', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body:    JSON.stringify({
           message, history, context,
           file_id:  fileId,
           provider: getProviderConfig(),
@@ -883,15 +1095,18 @@
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         addMessage('error', 'Error: ' + (err.detail || res.statusText));
+        setStatus('error');
       } else {
         const data = await res.json();
         addMessage('bot', data.response);
         history = data.history;
         context = data.context;
+        setStatus('');
       }
     } catch {
       removeTyping();
       addMessage('error', 'Network error — is the server running?');
+      setStatus('error');
     }
 
     busy = false;
@@ -899,13 +1114,21 @@
     inputEl.focus();
   }
 
+  // ── State: new-chat / reset ───────────────────────────────────────────────
   function clearChat() {
     history = []; context = {};
+    setStatus('');
     messagesEl.innerHTML = `
       <div id="empty-state">
         <div class="es-icon">📈</div>
         <h2>Ask about your finances</h2>
-        <p>Upload a CSV or Excel file on the left, then ask anything about your spending, budgets, or transactions.</p>
+        <p>Upload a CSV or Excel file, then ask anything about your spending, budgets, or transactions.</p>
+        <div class="quick-chips">
+          <button class="quick-chip" onclick="chipSend('What did I spend last month?')">Last month summary</button>
+          <button class="quick-chip" onclick="chipSend('Show me my top 5 merchants')">Top merchants</button>
+          <button class="quick-chip" onclick="chipSend('Do I have any recurring subscriptions?')">Subscriptions</button>
+          <button class="quick-chip" onclick="chipSend('How am I doing financially?')">Financial health</button>
+        </div>
       </div>`;
     suggestions.style.display = 'flex';
     suggestions.style.flexDirection = 'column';
@@ -919,8 +1142,13 @@
     if (!file) return;
     input.value = '';
 
-    uploadLabel.textContent = '⏳ Uploading…';
-    uploadLabel.style.pointerEvents = 'none';
+    // ── State: uploading ──
+    const icon = document.getElementById('upload-label-icon');
+    const text = document.getElementById('upload-label-text');
+    icon.outerHTML = '<div class="upload-spinner" id="upload-label-icon"></div>';
+    text.textContent = 'Uploading…';
+    uploadLabel.classList.add('uploading');
+    document.getElementById('upload-progress-wrap').classList.add('visible');
 
     const form = new FormData();
     form.append('file', file);
@@ -929,32 +1157,38 @@
       const res = await fetch('/api/upload', { method: 'POST', body: form });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
-        alert('Upload failed: ' + (err.detail || res.statusText));
+        showToast('Upload failed: ' + (err.detail || res.statusText), 'error');
         return;
       }
       const data = await res.json();
       setActiveFile(data);
       addSystemMessage(`📂 Loaded **${data.filename}** — ${data.rows.toLocaleString()} rows · ${data.date_min} → ${data.date_max}`);
+      showToast(`Loaded ${data.rows.toLocaleString()} rows from ${data.filename}`, 'success');
     } catch {
-      alert('Upload failed — network error.');
+      showToast('Upload failed — network error.', 'error');
     } finally {
-      uploadLabel.textContent = '📎 Upload CSV / Excel';
-      uploadLabel.style.pointerEvents = '';
+      // Restore upload button to idle state
+      uploadLabel.classList.remove('uploading');
+      document.getElementById('upload-progress-wrap').classList.remove('visible');
+      const spinner = document.getElementById('upload-label-icon');
+      if (spinner) spinner.outerHTML = '<span id="upload-label-icon">📎</span>';
+      document.getElementById('upload-label-text').textContent = 'Upload CSV / Excel';
     }
   }
 
+  // ── State: file-loaded ────────────────────────────────────────────────────
   function setActiveFile(data) {
     fileId = data.file_id;
     document.getElementById('badge-name').textContent = data.filename;
     document.getElementById('badge-meta').textContent = `${data.rows.toLocaleString()} rows`;
-    fileBadge.style.display   = 'flex';
+    fileBadge.classList.add('visible');
     uploadLabel.style.display = 'none';
     history = []; context = {};
   }
 
   function clearFile() {
     fileId = null;
-    fileBadge.style.display   = 'none';
+    fileBadge.classList.remove('visible');
     uploadLabel.style.display = '';
     addSystemMessage('Switched back to sample data.');
     history = []; context = {};
@@ -965,7 +1199,7 @@
     window.open(`/api/download/${fileId}?format=${format}`, '_blank');
   }
 
-  // ── Drag-and-drop ─────────────────────────────────────────────────────────
+  // ── State: drag-over ─────────────────────────────────────────────────────
   const overlay = document.getElementById('drag-overlay');
   let dragCount = 0;
 
@@ -984,7 +1218,8 @@
     if (!file) return;
     const suffix = file.name.split('.').pop().toLowerCase();
     if (!['csv', 'xlsx', 'xls'].includes(suffix)) {
-      alert('Please drop a CSV or Excel (.xlsx / .xls) file.'); return;
+      showToast('Please drop a CSV or Excel (.xlsx / .xls) file.', 'error');
+      return;
     }
     handleUpload({ files: [file], value: '' });
   });
