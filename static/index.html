@@ -3,53 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finance Agent</title>
+  <title>Finance Agent AI Analyst</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      /* Base palette */
-      --bg:             #0a0a12;
-      --sidebar-bg:     #0d0d18;
-      --surface:        #12121e;
-      --card:           #181826;
-      --border:         #22223a;
-      --border-soft:    #1a1a2e;
-
-      /* Accent */
-      --accent:         #5b6af7;
-      --accent-dim:     rgba(91,106,247,.11);
-      --accent-glow:    rgba(91,106,247,.32);
-      --accent-hover:   #4a58e6;
-      --accent-text:    #8b97fb;
-
-      /* Semantic */
-      --success:        #34d399;
-      --success-dim:    rgba(52,211,153,.12);
-      --error:          #f87171;
-      --error-dim:      rgba(248,113,113,.08);
-      --warn:           #fbbf24;
-
-      /* Text */
-      --text:           #c4cde0;
-      --text-strong:    #e6ecf6;
-      --text-muted:     #5a6278;
-
-      /* User bubble */
-      --user-from:      #4a58e6;
-      --user-to:        #7c3aed;
-
-      /* Radii */
-      --r:              8px;
-      --r-lg:           14px;
-      --r-xl:           18px;
-
-      /* Transitions */
-      --t-fast:         150ms ease;
-      --t-med:          200ms ease;
-      --t-slow:         250ms ease;
+      --bg:          #0a0a0a;
+      --surface:     #0d0d0d;
+      --card:        #111118;
+      --border:      #1e1e2e;
+      --border-soft: #1a1a2a;
+      --accent:      #2a2aff;
+      --accent-dim:  rgba(42,42,255,.10);
+      --accent-glow: rgba(42,42,255,.30);
+      --error:       #cc2222;
+      --error-dim:   rgba(204,34,34,.10);
+      --warn:        #ff8800;
+      --success:     #00cc66;
+      --text:        #bbb;
+      --text-strong: #e0e0e0;
+      --text-muted:  #444;
+      --text-label:  #333;
     }
 
     body {
@@ -58,233 +34,253 @@
       color: var(--text);
       height: 100dvh;
       display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
-    /* ─── Scrollbars ─────────────────────────────────────────── */
+    /* ─── Scrollbars ─────────────────────────────────────── */
     ::-webkit-scrollbar            { width: 4px; }
     ::-webkit-scrollbar-track      { background: transparent; }
-    ::-webkit-scrollbar-thumb      { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover{ background: #2e2e50; }
+    ::-webkit-scrollbar-thumb      { background: #1e1e2e; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover{ background: #2a2a44; }
 
-    /* ─── Sidebar ────────────────────────────────────────────── */
+    /* ═══════════════════════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════════════════════ */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+    .topbar-brand { display: flex; flex-direction: column; }
+    .topbar-brand .label {
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-label);
+    }
+    .topbar-brand .title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      transition: background .2s, box-shadow .2s;
+    }
+    .status-dot.busy  { background: var(--warn); box-shadow: 0 0 6px var(--warn); animation: pulse 1.2s ease infinite; }
+    .status-dot.error { background: var(--error); box-shadow: 0 0 6px var(--error); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .topbar-icon {
+      width: 28px; height: 28px;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .topbar-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ═══════════════════════════════════════════════════════
+       BODY LAYOUT (sidebar + main)
+    ═══════════════════════════════════════════════════════ */
+    .layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─────────────────────────────────────── */
     .sidebar {
-      width: 260px;
-      min-width: 260px;
-      background: var(--sidebar-bg);
+      width: 220px;
+      min-width: 220px;
+      background: var(--surface);
       border-right: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
-      height: 100%;
       overflow: hidden;
-      transition: width var(--t-slow), min-width var(--t-slow);
+      transition: width .25s ease, min-width .25s ease;
     }
 
-    /* Logo */
-    .sidebar-logo {
-      padding: 18px 16px 14px;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      border-bottom: 1px solid var(--border-soft);
-      flex-shrink: 0;
-    }
-
-    .logo-gem {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--accent), #7c3aed);
-      border-radius: 10px;
-      display: grid; place-items: center;
-      font-size: 17px;
-      flex-shrink: 0;
-      box-shadow: 0 0 18px var(--accent-glow);
-    }
-
-    .logo-copy h1 { font-size: 14px; font-weight: 700; color: var(--text-strong); letter-spacing: -.01em; }
-    .logo-copy p  { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
-
-    /* Sidebar sections */
     .sb-section {
-      padding: 14px 13px 12px;
+      padding: 14px 0 10px;
       flex-shrink: 0;
     }
     .sb-section + .sb-section { border-top: 1px solid var(--border-soft); }
     .sb-section.grow { flex: 1; overflow-y: auto; min-height: 0; }
 
-    .sb-label {
-      font-size: 10px;
-      font-weight: 600;
+    .sidebar-section-label {
+      font-size: 8px;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      letter-spacing: .07em;
-      color: var(--text-muted);
-      padding: 0 2px;
-      margin-bottom: 9px;
+      color: var(--text-label);
+      padding: 0 16px 8px;
     }
 
     /* Provider tabs */
     .provider-tabs {
       display: flex;
+      margin: 0 14px 8px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: var(--r);
+      border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 8px;
     }
-
     .ptab {
       flex: 1;
       padding: 6px 0;
-      font-size: 11.5px;
+      font-size: 10px;
       font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
       background: transparent;
       border: none;
       font-family: inherit;
-      transition: background var(--t-fast), color var(--t-fast);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: background .15s, color .15s;
     }
     .ptab:not(:last-child) { border-right: 1px solid var(--border); }
     .ptab.active           { background: var(--accent); color: #fff; }
-    .ptab:disabled         { opacity: .38; cursor: not-allowed; }
+    .ptab:disabled         { opacity: .3; cursor: not-allowed; }
 
     #model-select {
-      width: 100%;
+      width: calc(100% - 28px);
+      margin: 0 14px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: var(--r);
+      border-radius: 8px;
       padding: 7px 9px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text);
       font-family: inherit;
       outline: none;
       cursor: pointer;
-      transition: border-color var(--t-fast);
+      transition: border-color .15s;
     }
     #model-select:focus    { border-color: var(--accent); }
-    #model-select:disabled { opacity: .38; cursor: not-allowed; }
+    #model-select:disabled { opacity: .3; cursor: not-allowed; }
     #model-select option   { background: var(--card); }
 
     #ollama-url-wrap {
       display: none;
       flex-direction: column;
       gap: 4px;
-      margin-top: 7px;
+      margin: 6px 14px 0;
     }
-    #ollama-url-wrap span { font-size: 11px; color: var(--text-muted); }
+    #ollama-url-wrap span { font-size: 9px; color: var(--text-muted); letter-spacing: .06em; text-transform: uppercase; }
     #ollama-url {
-      width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: var(--r);
+      border-radius: 8px;
       padding: 7px 9px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text);
       font-family: inherit;
       outline: none;
-      transition: border-color var(--t-fast);
+      transition: border-color .15s;
     }
     #ollama-url:focus    { border-color: var(--accent); }
-    #ollama-url:disabled { opacity: .38; }
+    #ollama-url:disabled { opacity: .3; }
 
-    /* ── State: session-locked ─────────────────────────────── */
+    /* Session lock banner */
     #session-lock {
       display: none;
       align-items: center;
       gap: 7px;
-      padding: 8px 10px;
+      margin: 6px 14px 0;
+      padding: 7px 10px;
       background: var(--accent-dim);
-      border: 1px solid rgba(91,106,247,.22);
-      border-radius: var(--r);
-      font-size: 11px;
-      color: var(--accent-text);
-      margin-top: 8px;
-      transition: opacity var(--t-med);
+      border: 1px solid rgba(42,42,255,.2);
+      border-radius: 8px;
+      font-size: 10px;
+      color: #8888ff;
     }
     #session-lock.visible { display: flex; }
-
-    .lock-icon {
-      width: 18px; height: 18px;
-      background: rgba(91,106,247,.18);
-      border-radius: 4px;
-      display: grid; place-items: center;
-      font-size: 10px;
-      flex-shrink: 0;
-    }
-
-    /* Active provider pill */
     #active-provider-pill {
       display: none;
       align-items: center;
       gap: 6px;
-      margin-top: 7px;
-      font-size: 12px;
+      margin: 5px 14px 0;
+      font-size: 10px;
       font-weight: 500;
       color: var(--text-strong);
     }
     #active-provider-pill.visible { display: flex; }
-    .pill-dot            { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .pill-dot.groq       { background: #818cf8; box-shadow: 0 0 6px #818cf880; }
-    .pill-dot.ollama     { background: #fb923c; box-shadow: 0 0 6px #fb923c80; }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .pill-dot.groq   { background: #6666ff; box-shadow: 0 0 5px #6666ff80; }
+    .pill-dot.ollama { background: #ff8800; box-shadow: 0 0 5px #ff880080; }
 
-    /* ── Upload button (idle state) ──────────────────────────── */
+    /* Upload zone */
     .upload-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
-      width: 100%;
+      margin: 0 14px;
       padding: 9px 12px;
-      border: 1.5px dashed var(--border);
-      border-radius: var(--r);
-      font-size: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-size: 10px;
       font-weight: 500;
       color: var(--text-muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
       cursor: pointer;
       background: transparent;
-      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+      transition: border-color .15s, color .15s, background .15s;
     }
     .upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-    #file-input { display: none; }
-
-    /* ── State: uploading ─────────────────────────────────────── */
     .upload-btn.uploading {
       border-style: solid;
       border-color: var(--accent);
-      color: var(--accent-text);
+      color: #8888ff;
       background: var(--accent-dim);
-      cursor: not-allowed;
       pointer-events: none;
     }
+    #file-input { display: none; }
 
-    .upload-spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(91,106,247,.25);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      flex-shrink: 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Progress bar */
+    /* Upload progress */
     .upload-progress-wrap {
       display: none;
       height: 2px;
       background: var(--border);
       border-radius: 2px;
-      margin-top: 5px;
+      margin: 5px 14px 0;
       overflow: hidden;
     }
     .upload-progress-wrap.visible { display: block; }
     .upload-progress-bar {
       height: 100%;
       background: var(--accent);
-      width: 0%;
-      transition: width var(--t-slow);
-      border-radius: 2px;
-    }
-    .upload-progress-bar.indeterminate {
       width: 40%;
+      border-radius: 2px;
       animation: progress-slide 1.2s ease-in-out infinite alternate;
     }
     @keyframes progress-slide {
@@ -292,108 +288,100 @@
       to   { transform: translateX(250%); }
     }
 
-    /* ── State: file-loaded (file badge) ─────────────────────── */
+    /* File badge */
     #file-badge {
       display: none;
       flex-direction: column;
       gap: 8px;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--r);
+      border-radius: 8px;
       padding: 10px 11px;
-      margin-top: 8px;
-      animation: fadein var(--t-med);
+      margin: 6px 14px 0;
+      animation: fadein .2s ease;
     }
     #file-badge.visible { display: flex; }
-
     .badge-top { display: flex; align-items: center; gap: 9px; }
-
     .badge-file-icon {
-      width: 30px; height: 30px;
+      width: 28px; height: 28px;
       background: linear-gradient(135deg, #059669, #10b981);
-      border-radius: 7px;
+      border-radius: 6px;
       display: grid; place-items: center;
-      font-size: 14px;
+      font-size: 13px;
       flex-shrink: 0;
     }
-
     .badge-info { flex: 1; min-width: 0; }
-    .file-name  { font-size: 12px; font-weight: 600; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
+    .file-name  { font-size: 11px; font-weight: 600; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta  { font-size: 9px; color: var(--text-muted); margin-top: 2px; letter-spacing: .04em; }
     .badge-actions { display: flex; gap: 5px; }
-
     .badge-btn {
       flex: 1;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 5px;
       padding: 4px 0;
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 500;
       color: var(--text-muted);
       cursor: pointer;
       font-family: inherit;
-      transition: border-color var(--t-fast), color var(--t-fast);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: border-color .15s, color .15s;
     }
-    .badge-btn:hover       { border-color: var(--accent); color: var(--accent); }
-    .badge-btn.rm:hover    { border-color: var(--error);  color: var(--error);  }
+    .badge-btn:hover     { border-color: var(--accent); color: var(--accent); }
+    .badge-btn.rm:hover  { border-color: var(--error);  color: #ff6666; }
 
-    /* Suggestions */
-    #suggestions {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .suggestion {
+    /* Sidebar nav links */
+    .nav-link {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 7px 8px;
-      border-radius: 6px;
-      font-size: 12px;
+      gap: 10px;
+      padding: 9px 16px;
+      font-size: 10px;
+      font-weight: 500;
       color: var(--text-muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
       cursor: pointer;
-      background: transparent;
-      border: none;
-      font-family: inherit;
-      text-align: left;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-      transition: background var(--t-fast), color var(--t-fast);
+      transition: background .12s, color .12s;
     }
-    .suggestion:hover { background: var(--surface); color: var(--text); }
-
-    /* Sidebar footer */
-    .sb-footer {
-      padding: 10px 13px 14px;
-      border-top: 1px solid var(--border-soft);
+    .nav-link:hover { background: #111118; color: var(--text); }
+    .nav-link .nl-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
       flex-shrink: 0;
     }
 
+    /* Sidebar footer */
+    .sb-footer {
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
     #clear-btn {
       width: 100%;
       padding: 8px;
-      border-radius: var(--r);
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--text-muted);
-      font-size: 12.5px;
+      font-size: 10px;
       font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       cursor: pointer;
       font-family: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       gap: 7px;
-      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+      transition: border-color .15s, color .15s, background .15s;
     }
-    #clear-btn:hover { border-color: var(--error); color: var(--error); background: var(--error-dim); }
+    #clear-btn:hover { border-color: var(--error); color: #ff6666; background: var(--error-dim); }
 
-    /* ─── Main area ──────────────────────────────────────────── */
+    /* ═══════════════════════════════════════════════════════
+       MAIN PANEL
+    ═══════════════════════════════════════════════════════ */
     .main {
       flex: 1;
       display: flex;
@@ -403,115 +391,175 @@
       min-width: 0;
     }
 
-    /* Top bar */
-    .top-bar {
+    /* ── STATE 1: Empty ─────────────────────────────────── */
+    #empty-state {
+      margin: auto;
+      text-align: center;
+      padding: 48px 32px;
+      animation: fadein .25s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #empty-state h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-strong);
+      line-height: 1.2;
+      margin-bottom: 10px;
+      letter-spacing: -.02em;
+    }
+    #empty-state p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+    .s1-chips {
       display: flex;
-      align-items: center;
       gap: 10px;
-      padding: 0 22px;
-      height: 44px;
-      border-bottom: 1px solid var(--border-soft);
-      flex-shrink: 0;
-      background: var(--bg);
+      justify-content: center;
+      flex-wrap: wrap;
     }
-
-    #header-subtitle { font-size: 12px; color: var(--text-muted); flex: 1; transition: color var(--t-med); }
-
-    .status-dot {
-      width: 7px; height: 7px;
-      background: var(--success);
-      border-radius: 50%;
-      box-shadow: 0 0 7px var(--success);
-      transition: background var(--t-med), box-shadow var(--t-med);
+    .s1-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 11px;
+      color: #888;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 7px;
+      cursor: pointer;
+      min-width: 130px;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .2s, color .2s;
     }
-    .status-dot.error  { background: var(--error); box-shadow: 0 0 7px var(--error); }
-    .status-dot.busy   { background: var(--warn);  box-shadow: 0 0 7px var(--warn); animation: pulse 1.2s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+    .s1-chip:hover { border-color: var(--accent); color: var(--text); }
+    .s1-chip .chip-icon { font-size: 18px; }
 
-    /* ─── Messages ───────────────────────────────────────────── */
+    /* ── Messages area ───────────────────────────────────── */
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 28px 28px 16px;
+      padding: 20px 24px 12px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 14px;
       scroll-behavior: smooth;
     }
 
     .msg {
       display: flex;
-      gap: 12px;
-      max-width: 760px;
-      animation: fadein var(--t-med) ease;
+      gap: 10px;
+      max-width: 680px;
+      animation: fadein .2s ease;
     }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(7px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
     .msg.user  { align-self: flex-end;   flex-direction: row-reverse; }
     .msg.bot   { align-self: flex-start; }
     .msg.error { align-self: flex-start; }
 
     .avatar {
-      width: 30px; height: 30px;
+      width: 28px; height: 28px;
       border-radius: 50%;
       display: grid; place-items: center;
-      font-size: 13px;
+      font-size: 12px;
       flex-shrink: 0;
       align-self: flex-end;
     }
-    .msg.user  .avatar { background: linear-gradient(135deg, var(--user-from), var(--user-to)); color: #fff; }
-    .msg.bot   .avatar { background: var(--surface); border: 1px solid var(--border); color: #8b8fa8; font-size: 15px; }
-    .msg.error .avatar { background: var(--error-dim); color: var(--error); border: 1px solid rgba(248,113,113,.15); }
+    .msg.user  .avatar { background: var(--accent); color: #fff; font-size: 11px; }
+    .msg.bot   .avatar { background: var(--card); border: 1px solid var(--border); color: #666; }
+    .msg.error .avatar { background: var(--error-dim); color: #ff6666; border: 1px solid rgba(204,34,34,.2); }
 
-    .bubble {
-      padding: 11px 15px;
-      border-radius: var(--r-lg);
-      font-size: 13.5px;
-      line-height: 1.72;
-      max-width: 640px;
-    }
-
-    .msg.user  .bubble {
-      background: linear-gradient(135deg, var(--user-from), var(--user-to));
-      color: #fff;
-      border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 22px rgba(74,88,230,.25);
-    }
-    .msg.bot   .bubble {
-      background: var(--surface);
+    /* ── STATE 5: Chat-active — user bubble ────────────── */
+    .msg-user-bubble {
+      background: #1a1a2e;
+      border: 1px solid #2a2a44;
+      border-radius: 14px 14px 2px 14px;
+      padding: 9px 13px;
+      font-size: 12px;
       color: var(--text);
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    /* ── Agent bubble with markdown ───────────────────── */
+    .msg-agent-bubble {
+      background: var(--card);
       border: 1px solid var(--border);
-      border-bottom-left-radius: 4px;
+      border-radius: 2px 14px 14px 14px;
+      padding: 11px 14px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 600px;
+      line-height: 1.72;
     }
-    /* ── State: error message ──────────────────────────────── */
-    .msg.error .bubble {
+    .msg-agent-bubble h1,.msg-agent-bubble h2,.msg-agent-bubble h3 { margin: .6em 0 .25em; color: var(--text-strong); }
+    .msg-agent-bubble p  { margin: .3em 0; }
+    .msg-agent-bubble ul,.msg-agent-bubble ol { margin: .3em 0 .3em 1.3em; }
+    .msg-agent-bubble li { margin: .2em 0; }
+    .msg-agent-bubble strong { font-weight: 600; color: var(--text-strong); }
+    .msg-agent-bubble code  { background: rgba(255,255,255,.06); border-radius: 4px; padding: 1px 5px; font-family: "SF Mono","Fira Code",monospace; font-size: .85em; }
+    .msg-agent-bubble pre   { background: #0a0a12; border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; overflow-x: auto; margin: .5em 0; }
+    .msg-agent-bubble pre code { background: none; padding: 0; }
+    .msg-agent-bubble table { border-collapse: collapse; width: 100%; margin: .5em 0; font-size: .9em; }
+    .msg-agent-bubble th,.msg-agent-bubble td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
+    .msg-agent-bubble th { background: var(--card); font-weight: 600; color: var(--text-strong); }
+
+    /* ── STATE 7: Error bubble ───────────────────────── */
+    .msg-error-bubble {
       background: var(--error-dim);
-      border: 1px solid rgba(248,113,113,.18);
-      color: var(--error);
-      border-bottom-left-radius: 4px;
+      border: 1px solid rgba(204,34,34,.2);
+      border-radius: 2px 14px 14px 14px;
+      padding: 9px 13px;
+      font-size: 12px;
+      color: #ff6666;
+      max-width: 560px;
     }
 
-    /* Markdown inside bubbles */
-    .bubble h1,.bubble h2,.bubble h3 { margin: .7em 0 .3em; color: var(--text-strong); }
-    .bubble h1 { font-size: 1.05em; } .bubble h2 { font-size: 1em; } .bubble h3 { font-size: .95em; }
-    .bubble p  { margin: .35em 0; }
-    .bubble ul,.bubble ol { margin: .35em 0 .35em 1.4em; }
-    .bubble li { margin: .2em 0; }
-    .bubble strong { font-weight: 600; color: var(--text-strong); }
-    .bubble code   { background: rgba(255,255,255,.07); border-radius: 4px; padding: 1px 6px; font-family: "SF Mono","Fira Code",monospace; font-size: .85em; }
-    .msg.user .bubble code { background: rgba(255,255,255,.18); }
-    .bubble pre     { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; overflow-x: auto; margin: .55em 0; }
-    .bubble pre code{ background: none; padding: 0; }
-    .bubble table   { border-collapse: collapse; width: 100%; margin: .55em 0; font-size: .9em; }
-    .bubble th,.bubble td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
-    .bubble th      { background: var(--card); font-weight: 600; color: var(--text-strong); }
+    /* ── Inline data card (merchant rows) ─────────────── */
+    .data-card {
+      background: #111118;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .data-card-title {
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-label);
+      margin-bottom: 8px;
+    }
+    .merchant-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .merchant-name   { font-size: 11px; color: #ccc; font-weight: 500; }
+    .merchant-amount { font-size: 11px; color: var(--text-strong); font-weight: 600; }
+    .bar-bg  { height: 2px; background: var(--border); border-radius: 2px; }
+    .bar-fill{ height: 2px; background: var(--accent); border-radius: 2px; }
+    .bar-pct { font-size: 8px; color: var(--text-label); margin-top: 2px; }
 
-    /* ── State: thinking / typing indicator ────────────────── */
-    .typing { display: flex; align-items: center; gap: 5px; padding: 12px 16px; }
-    .typing span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; opacity: .5; animation: bounce .9s infinite; }
+    /* ── Timestamp ────────────────────────────────────── */
+    .msg-time {
+      font-size: 9px;
+      color: var(--text-label);
+      text-align: right;
+      padding: 0 4px;
+      letter-spacing: .04em;
+    }
+    .msg.user .msg-time { text-align: right; }
+
+    /* ── STATE 6: Thinking ────────────────────────────── */
+    .typing { display: flex; align-items: center; gap: 5px; padding: 10px 14px; }
+    .typing span { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; opacity: .5; animation: bounce .9s infinite; }
     .typing span:nth-child(2) { animation-delay: .18s; }
     .typing span:nth-child(3) { animation-delay: .36s; }
     @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
@@ -519,171 +567,141 @@
     /* System message */
     .sys-msg {
       text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
+      font-size: 10px;
+      color: var(--text-label);
       padding: 2px 0;
+      letter-spacing: .04em;
     }
 
-    /* ── State: empty ────────────────────────────────────────── */
-    #empty-state {
-      margin: auto;
-      text-align: center;
-      padding: 48px 24px;
-      animation: fadein var(--t-slow);
-    }
-    #empty-state .es-icon {
-      width: 68px; height: 68px;
-      background: linear-gradient(135deg, var(--accent), #7c3aed);
-      border-radius: var(--r-xl);
-      display: grid; place-items: center;
-      font-size: 30px;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 48px var(--accent-glow);
-    }
-    #empty-state h2 { font-size: 21px; font-weight: 700; color: var(--text-strong); margin-bottom: 9px; letter-spacing: -.02em; }
-    #empty-state p  { font-size: 13.5px; color: var(--text-muted); max-width: 310px; line-height: 1.65; }
-
-    /* ── Quick-start chips inside empty state ─────────────── */
-    .quick-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 22px;
-    }
-    .quick-chip {
-      padding: 6px 13px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 12px;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-family: inherit;
-      transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
-    }
-    .quick-chip:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-dim); }
-
-    /* ─── Input bar ──────────────────────────────────────────── */
+    /* ── Input bar ───────────────────────────────────── */
     #input-bar {
-      padding: 10px 22px 18px;
+      padding: 10px 20px 16px;
       flex-shrink: 0;
       background: var(--bg);
+      border-top: 1px solid var(--border-soft);
     }
 
-    .input-shell {
+    .chat-bar {
       display: flex;
       align-items: flex-end;
       gap: 10px;
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 10px 12px;
-      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 9px 12px;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .input-shell:focus-within {
+    .chat-bar:focus-within {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-dim);
     }
-    .input-shell.disabled {
-      opacity: .5;
-      pointer-events: none;
-    }
+    .chat-bar.disabled { opacity: .45; pointer-events: none; }
 
     #input {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      font-size: 14px;
+      font-size: 12px;
       font-family: inherit;
       color: var(--text-strong);
       resize: none;
-      max-height: 130px;
+      max-height: 120px;
       line-height: 1.55;
     }
     #input::placeholder { color: var(--text-muted); }
 
     #send-btn {
-      width: 36px; height: 36px;
+      width: 30px; height: 30px;
+      background: var(--accent);
+      border-radius: 50%;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #7c3aed);
-      color: #fff;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      display: grid; place-items: center;
+      color: #fff;
+      font-size: 13px;
       flex-shrink: 0;
-      transition: opacity var(--t-fast), transform .1s, box-shadow var(--t-fast);
-      box-shadow: 0 2px 12px var(--accent-glow);
+      transition: opacity .15s, transform .1s;
+      box-shadow: 0 2px 10px var(--accent-glow);
     }
-    #send-btn:hover    { opacity: .9; box-shadow: 0 4px 20px rgba(91,106,247,.5); }
-    #send-btn:active   { transform: scale(.91); }
-    #send-btn:disabled { background: var(--card); box-shadow: none; cursor: not-allowed; }
+    #send-btn:hover    { opacity: .85; }
+    #send-btn:active   { transform: scale(.9); }
+    #send-btn:disabled { background: #1e1e2e; box-shadow: none; cursor: not-allowed; }
 
-    /* ─── Drag-over overlay ──────────────────────────────────── */
+    /* ── STATE 2: Drag-over overlay ──────────────────── */
     #drag-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(91,106,247,.06);
-      border: 2.5px dashed var(--accent);
+      background: rgba(42,42,255,.05);
+      border: 2px dashed var(--accent);
       z-index: 100;
       pointer-events: none;
       align-items: center; justify-content: center;
       flex-direction: column; gap: 14px;
-      font-size: 19px; font-weight: 700; color: var(--accent);
-      backdrop-filter: blur(8px);
-      transition: opacity var(--t-fast);
+      backdrop-filter: blur(6px);
     }
-    /* ── State: drag-over ─────────────────────────────────────── */
-    #drag-overlay.active { display: flex; animation: fadein var(--t-fast); }
-
+    #drag-overlay.active { display: flex; animation: fadein .15s ease; }
     .drag-icon {
-      width: 72px; height: 72px;
+      width: 68px; height: 68px;
       background: var(--accent-dim);
-      border: 2px solid rgba(91,106,247,.3);
-      border-radius: var(--r-xl);
+      border: 1px solid rgba(42,42,255,.25);
+      border-radius: 18px;
       display: grid; place-items: center;
-      font-size: 34px;
+      font-size: 32px;
       margin-bottom: 4px;
     }
+    .drag-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .04em;
+    }
 
-    /* ─── Toast notifications ────────────────────────────────── */
+    /* ── Toast ────────────────────────────────────────── */
     #toast-root {
       position: fixed;
-      bottom: 24px; right: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      bottom: 20px; right: 20px;
+      display: flex; flex-direction: column; gap: 8px;
       z-index: 200;
     }
-
     .toast {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 15px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--r);
-      font-size: 13px;
+      border-radius: 8px;
+      font-size: 12px;
       color: var(--text);
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
-      animation: toast-in .2s ease;
-      max-width: 320px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.5);
+      animation: fadein .2s ease;
+      max-width: 300px;
     }
-    .toast.error  { border-color: rgba(248,113,113,.28); background: rgba(30,14,14,.9); color: var(--error); }
-    .toast.success{ border-color: rgba(52,211,153,.22); }
-    @keyframes toast-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .toast.error  { border-color: rgba(204,34,34,.3); color: #ff6666; }
+    .toast.success{ border-color: rgba(0,204,102,.2); }
 
-    /* ─── Hidden legacy div ──────────────────────────────────── */
+    /* ── Bottom footer strip ─────────────────────────── */
+    .bottom-strip {
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+    .bottom-strip span {
+      font-size: 8px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-label);
+    }
+
     #provider-bar { display: none; }
 
-    /* ─── Responsive: 768px ──────────────────────────────────── */
+    /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
-      #messages { padding: 16px 14px 8px; }
-      #input-bar { padding: 8px 14px 14px; }
-      .top-bar   { padding: 0 16px; }
+      #messages { padding: 14px 14px 8px; }
+      #input-bar { padding: 8px 14px 12px; }
     }
   </style>
 </head>
@@ -692,158 +710,150 @@
 <!-- Drag-over overlay -->
 <div id="drag-overlay">
   <div class="drag-icon">📂</div>
-  Drop your CSV or Excel file here
+  <div class="drag-label">Drop file to upload</div>
 </div>
 
 <!-- Toast container -->
 <div id="toast-root"></div>
 
-<!-- Hidden legacy div -->
+<!-- Legacy hook -->
 <div id="provider-bar"></div>
 
-<!-- ─── Sidebar ───────────────────────────────────────────────── -->
-<aside class="sidebar">
-
-  <!-- Logo / header -->
-  <div class="sidebar-logo">
-    <div class="logo-gem">💎</div>
-    <div class="logo-copy">
-      <h1>Finance Agent</h1>
-      <p id="header-subtitle">Loading…</p>
-    </div>
+<!-- ─── Top bar ────────────────────────────────────────── -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <span class="label">Financial Intelligence</span>
+    <span class="title">Finance Agent Terminal</span>
   </div>
-
-  <!-- Provider section -->
-  <div class="sb-section">
-    <div class="sb-label">Provider</div>
-
-    <div class="provider-tabs">
-      <button class="ptab active" id="tab-groq"   onclick="selectProvider('groq')">☁ Groq</button>
-      <button class="ptab"        id="tab-ollama" onclick="selectProvider('ollama')">⬡ Ollama</button>
+  <div class="topbar-right">
+    <div class="topbar-status">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-label">Ready</span>
     </div>
-
-    <select id="model-select" title="Model"></select>
-
-    <div id="ollama-url-wrap">
-      <span>Ollama URL</span>
-      <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
-    </div>
-
-    <!-- ── State: session-locked ── -->
-    <div id="session-lock">
-      <div class="lock-icon">🔒</div>
-      <span>Locked — click <strong>New chat</strong> to switch</span>
-    </div>
-
-    <!-- Active provider pill -->
-    <div id="active-provider-pill">
-      <div class="pill-dot" id="pill-dot"></div>
-      <span id="pill-label"></span>
-      <span style="color:var(--text-muted);font-size:11px;font-weight:400" id="pill-model"></span>
-    </div>
+    <div class="topbar-icon" onclick="clearChat()" title="New session">↺</div>
   </div>
+</div>
 
-  <!-- Data / file section -->
-  <div class="sb-section">
-    <div class="sb-label">Data</div>
+<!-- ─── Layout ────────────────────────────────────────────── -->
+<div class="layout">
 
-    <!-- ── State: idle upload ── -->
-    <label class="upload-btn" id="upload-label" for="file-input">
-      <span id="upload-label-icon">📎</span>
-      <span id="upload-label-text">Upload CSV / Excel</span>
-    </label>
-    <input id="file-input" type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(this)" />
+  <!-- Sidebar -->
+  <aside class="sidebar">
 
-    <!-- Progress bar (uploading state) -->
-    <div class="upload-progress-wrap" id="upload-progress-wrap">
-      <div class="upload-progress-bar indeterminate" id="upload-progress-bar"></div>
+    <!-- Provider -->
+    <div class="sb-section">
+      <div class="sidebar-section-label">Provider</div>
+      <div class="provider-tabs">
+        <button class="ptab active" id="tab-groq"   onclick="selectProvider('groq')">☁ Groq</button>
+        <button class="ptab"        id="tab-ollama" onclick="selectProvider('ollama')">⬡ Ollama</button>
+      </div>
+      <select id="model-select" title="Model"></select>
+      <div id="ollama-url-wrap">
+        <span>Ollama URL</span>
+        <input id="ollama-url" type="text" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" />
+      </div>
+      <div id="session-lock">
+        <span>🔒</span>
+        <span>Locked — New chat to switch</span>
+      </div>
+      <div id="active-provider-pill">
+        <div class="pill-dot" id="pill-dot"></div>
+        <span id="pill-label"></span>
+        <span style="color:var(--text-muted);font-size:9px;font-weight:400" id="pill-model"></span>
+      </div>
     </div>
 
-    <!-- ── State: file-loaded ── -->
-    <div id="file-badge">
-      <div class="badge-top">
-        <div class="badge-file-icon">📄</div>
-        <div class="badge-info">
-          <div class="file-name" id="badge-name">file.csv</div>
-          <div class="file-meta" id="badge-meta"></div>
+    <!-- Data / file -->
+    <div class="sb-section">
+      <div class="sidebar-section-label">Data Source</div>
+      <label class="upload-btn" id="upload-label" for="file-input">
+        <span id="upload-icon">⬆</span>
+        <span id="upload-text">Upload CSV / Excel</span>
+      </label>
+      <input id="file-input" type="file" accept=".csv,.xlsx,.xls" onchange="handleUpload(this)" />
+      <div class="upload-progress-wrap" id="upload-progress-wrap">
+        <div class="upload-progress-bar"></div>
+      </div>
+      <div id="file-badge">
+        <div class="badge-top">
+          <div class="badge-file-icon">📄</div>
+          <div class="badge-info">
+            <div class="file-name" id="badge-name">file.csv</div>
+            <div class="file-meta" id="badge-meta"></div>
+          </div>
+        </div>
+        <div class="badge-actions">
+          <button class="badge-btn" onclick="downloadFile('csv')">↓ CSV</button>
+          <button class="badge-btn" onclick="downloadFile('xlsx')">↓ Excel</button>
+          <button class="badge-btn rm" onclick="clearFile()">✕ Remove</button>
         </div>
       </div>
-      <div class="badge-actions">
-        <button class="badge-btn" onclick="downloadFile('csv')">⬇ CSV</button>
-        <button class="badge-btn" onclick="downloadFile('xlsx')">⬇ Excel</button>
-        <button class="badge-btn rm" onclick="clearFile()">✕ Remove</button>
+    </div>
+
+    <!-- Nav links -->
+    <div class="sb-section grow">
+      <div class="sidebar-section-label">Quick Queries</div>
+      <div class="nav-link" onclick="chip('What did I spend most on last month?')"><span class="nl-dot"></span>Highest spend category</div>
+      <div class="nav-link" onclick="chip('Show me my top 5 merchants by spend')"><span class="nl-dot"></span>Top merchants</div>
+      <div class="nav-link" onclick="chip('Do I have any recurring subscriptions?')"><span class="nl-dot"></span>Recurring subscriptions</div>
+      <div class="nav-link" onclick="chip('Give me a monthly summary for last month')"><span class="nl-dot"></span>Monthly summary</div>
+      <div class="nav-link" onclick="chip('What was my total income last month?')"><span class="nl-dot"></span>Income last month</div>
+      <div class="nav-link" onclick="chip('How am I doing financially?')"><span class="nl-dot"></span>Financial health</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="sb-footer">
+      <button id="clear-btn" onclick="clearChat()">↺ &nbsp; New Session</button>
+    </div>
+
+  </aside>
+
+  <!-- Main panel -->
+  <div class="main">
+    <div id="messages">
+      <!-- STATE 1: Empty -->
+      <div id="empty-state">
+        <h1>Ask about your finances</h1>
+        <p>Upload a file or ask a question to begin analysis.</p>
+        <div class="s1-chips">
+          <button class="s1-chip" onclick="chip('What did I spend last month?')">
+            <span class="chip-icon">📊</span>
+            Where did I spend most?
+          </button>
+          <button class="s1-chip" onclick="chip('Do I have any recurring subscriptions?')">
+            <span class="chip-icon">🔄</span>
+            Recurring charges
+          </button>
+          <button class="s1-chip" onclick="chip('Show me my top 5 merchants')">
+            <span class="chip-icon">🏪</span>
+            Top merchants
+          </button>
+          <button class="s1-chip" onclick="chip('How am I doing financially?')">
+            <span class="chip-icon">📈</span>
+            Financial health
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="input-bar">
+      <div class="chat-bar" id="chat-bar">
+        <textarea
+          id="input" rows="1"
+          placeholder="Type your question…"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button id="send-btn" onclick="send()" title="Send (Enter)">➤</button>
       </div>
     </div>
   </div>
 
-  <!-- Quick questions -->
-  <div class="sb-section grow">
-    <div class="sb-label">Quick questions</div>
-    <div id="suggestions">
-      <button class="suggestion" onclick="suggest(this)">📊 Spending last month</button>
-      <button class="suggestion" onclick="suggest(this)">🏪 Top merchants</button>
-      <button class="suggestion" onclick="suggest(this)">🔁 Recurring subscriptions</button>
-      <button class="suggestion" onclick="suggest(this)">📅 Monthly summary</button>
-      <button class="suggestion" onclick="suggest(this)">🔍 Search for coffee</button>
-    </div>
-  </div>
+</div>
 
-  <!-- Footer / new-chat -->
-  <div class="sb-footer">
-    <!-- ── State: reset / new-chat ── -->
-    <button id="clear-btn" onclick="clearChat()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
-      </svg>
-      New chat
-    </button>
-  </div>
-
-</aside>
-
-<!-- ─── Main panel ─────────────────────────────────────────────── -->
-<div class="main">
-
-  <!-- Top bar -->
-  <div class="top-bar">
-    <span id="header-subtitle-top" style="font-size:12px;color:var(--text-muted);flex:1"></span>
-    <div class="status-dot" id="status-dot" title="Ready"></div>
-  </div>
-
-  <!-- Messages -->
-  <div id="messages">
-    <!-- ── State: empty ── -->
-    <div id="empty-state">
-      <div class="es-icon">📈</div>
-      <h2>Ask about your finances</h2>
-      <p>Upload a CSV or Excel file, then ask anything about your spending, budgets, or transactions.</p>
-      <div class="quick-chips">
-        <button class="quick-chip" onclick="chipSend('What did I spend last month?')">Last month summary</button>
-        <button class="quick-chip" onclick="chipSend('Show me my top 5 merchants')">Top merchants</button>
-        <button class="quick-chip" onclick="chipSend('Do I have any recurring subscriptions?')">Subscriptions</button>
-        <button class="quick-chip" onclick="chipSend('How am I doing financially?')">Financial health</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Input bar -->
-  <div id="input-bar">
-    <div class="input-shell" id="input-shell">
-      <textarea
-        id="input" rows="1"
-        placeholder="Ask about your spending, budgets, transactions…"
-        onkeydown="handleKey(event)"
-        oninput="autoResize(this)"
-      ></textarea>
-      <!-- ── State: send button ── -->
-      <button id="send-btn" onclick="send()" title="Send (Enter)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-
+<!-- Bottom strip -->
+<div class="bottom-strip">
+  <span>Institutional Intelligence · Finance Agent</span>
 </div>
 
 <script>
@@ -853,27 +863,26 @@
   let fileId         = null;
   let busy           = false;
   let sessionStarted = false;
-
   let providerData   = {};
   let activeProvider = 'groq';
 
-  const messagesEl  = document.getElementById('messages');
-  const inputEl     = document.getElementById('input');
-  const sendBtn     = document.getElementById('send-btn');
-  const suggestions = document.getElementById('suggestions');
-  const fileBadge   = document.getElementById('file-badge');
-  const uploadLabel = document.getElementById('upload-label');
-  const modelSel    = document.getElementById('model-select');
-  const ollamaWrap  = document.getElementById('ollama-url-wrap');
-  const ollamaUrl   = document.getElementById('ollama-url');
-  const sessionLock = document.getElementById('session-lock');
-  const provPill    = document.getElementById('active-provider-pill');
-  const statusDot   = document.getElementById('status-dot');
-  const inputShell  = document.getElementById('input-shell');
+  const messagesEl = document.getElementById('messages');
+  const inputEl    = document.getElementById('input');
+  const sendBtn    = document.getElementById('send-btn');
+  const fileBadge  = document.getElementById('file-badge');
+  const uploadLabel= document.getElementById('upload-label');
+  const modelSel   = document.getElementById('model-select');
+  const ollamaWrap = document.getElementById('ollama-url-wrap');
+  const ollamaUrl  = document.getElementById('ollama-url');
+  const sessionLock= document.getElementById('session-lock');
+  const provPill   = document.getElementById('active-provider-pill');
+  const statusDot  = document.getElementById('status-dot');
+  const statusLabel= document.getElementById('status-label');
+  const chatBar    = document.getElementById('chat-bar');
 
   marked.setOptions({ breaks: true, gfm: true });
 
-  // ── Toast helper ──────────────────────────────────────────────────────────
+  // ── Toast ──────────────────────────────────────────────────────────────────
   function showToast(msg, type = '') {
     const root  = document.getElementById('toast-root');
     const toast = document.createElement('div');
@@ -883,13 +892,13 @@
     setTimeout(() => toast.remove(), 4000);
   }
 
-  // ── Status dot ────────────────────────────────────────────────────────────
+  // ── Status ─────────────────────────────────────────────────────────────────
   function setStatus(state) {
-    statusDot.className = 'status-dot' + (state ? ` ${state}` : '');
-    statusDot.title = state === 'busy' ? 'Thinking…' : state === 'error' ? 'Error' : 'Ready';
+    statusDot.className   = 'status-dot' + (state ? ` ${state}` : '');
+    statusLabel.textContent = state === 'busy' ? 'Analysing…' : state === 'error' ? 'Error' : 'Ready';
   }
 
-  // ── Init: load providers ──────────────────────────────────────────────────
+  // ── Providers ──────────────────────────────────────────────────────────────
   async function initProviders() {
     try {
       const res = await fetch('/api/providers');
@@ -900,11 +909,9 @@
         ollama: { models: ['llama3.2'], default_model: 'llama3.2', available: true },
       };
     }
-
     const groqAvail = providerData.groq?.available ?? true;
     if (!groqAvail) {
       document.getElementById('tab-groq').disabled = true;
-      document.getElementById('tab-groq').title = providerData.groq.unavailable_reason || '';
       selectProvider('ollama');
     } else {
       selectProvider('groq');
@@ -914,13 +921,10 @@
   function selectProvider(p) {
     if (sessionStarted) return;
     activeProvider = p;
-
     document.getElementById('tab-groq').classList.toggle('active', p === 'groq');
     document.getElementById('tab-ollama').classList.toggle('active', p === 'ollama');
-
     const data   = providerData[p] || {};
     const models = data.models || [];
-
     modelSel.innerHTML = '';
     models.forEach(m => {
       const o = document.createElement('option');
@@ -928,21 +932,17 @@
       modelSel.appendChild(o);
     });
     if (data.default_model) modelSel.value = data.default_model;
-
     ollamaWrap.style.display = p === 'ollama' ? 'flex' : 'none';
-    updateHeaderSubtitle();
+    updateSubtitle();
   }
 
-  function updateHeaderSubtitle() {
-    const sub = document.getElementById('header-subtitle');
-    if (sessionStarted) return;
-    const label = activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)';
-    sub.textContent = `${label} · ${modelSel.value || ''}`;
+  function updateSubtitle() {
+    const el = document.getElementById('header-subtitle');
+    if (el) el.textContent = (activeProvider === 'groq' ? 'Groq' : 'Ollama') + ' · ' + modelSel.value;
   }
+  modelSel.addEventListener('change', updateSubtitle);
 
-  modelSel.addEventListener('change', updateHeaderSubtitle);
-
-  // ── State: session-locked ────────────────────────────────────────────────
+  // ── Session lock ───────────────────────────────────────────────────────────
   function lockProvider() {
     sessionStarted = true;
     document.getElementById('tab-groq').disabled   = true;
@@ -950,15 +950,10 @@
     modelSel.disabled  = true;
     ollamaUrl.disabled = true;
     sessionLock.classList.add('visible');
-
     provPill.classList.add('visible');
     document.getElementById('pill-dot').className = `pill-dot ${activeProvider}`;
-    document.getElementById('pill-label').textContent =
-      activeProvider === 'groq' ? '☁ Groq' : '⬡ Ollama';
+    document.getElementById('pill-label').textContent = activeProvider === 'groq' ? '☁ Groq' : '⬡ Ollama';
     document.getElementById('pill-model').textContent = ' · ' + modelSel.value;
-
-    const sub = document.getElementById('header-subtitle');
-    sub.textContent = (activeProvider === 'groq' ? 'Groq (cloud)' : 'Ollama (local)') + ' · ' + modelSel.value;
   }
 
   function unlockProvider() {
@@ -970,58 +965,59 @@
     ollamaUrl.disabled = false;
     sessionLock.classList.remove('visible');
     provPill.classList.remove('visible');
-    updateHeaderSubtitle();
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
   function autoResize(el) {
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
   }
 
   function handleKey(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   }
 
-  function suggest(btn) {
-    const text = btn.textContent.replace(/^[^\w]+/, '').trim();
+  function chip(text) {
     inputEl.value = text;
     autoResize(inputEl);
     inputEl.focus();
   }
 
-  function chipSend(text) {
-    inputEl.value = text;
-    autoResize(inputEl);
-    send();
-  }
-
   function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
-  // ── Messages ──────────────────────────────────────────────────────────────
+  function nowTime() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Messages ───────────────────────────────────────────────────────────────
   function addMessage(role, content) {
     document.getElementById('empty-state')?.remove();
-    suggestions.style.display = 'none';
 
-    const msg    = document.createElement('div');
-    msg.className = `msg ${role}`;
+    const wrapper = document.createElement('div');
 
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.textContent = role === 'user' ? '🧑' : role === 'bot' ? '✦' : '⚠';
-
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-
-    if (role === 'user' || role === 'error') {
-      bubble.textContent = content;
-    } else {
-      bubble.innerHTML = marked.parse(content);
+    if (role === 'user') {
+      wrapper.innerHTML = `
+        <div class="msg user">
+          <div class="avatar">🧑</div>
+          <div class="msg-user-bubble">${escHtml(content)}</div>
+        </div>
+        <div class="msg-time">${nowTime()}</div>`;
+    } else if (role === 'bot') {
+      wrapper.innerHTML = `
+        <div class="msg bot">
+          <div class="avatar">◈</div>
+          <div class="msg-agent-bubble">${marked.parse(content)}</div>
+        </div>
+        <div class="msg-time">${nowTime()}</div>`;
+    } else if (role === 'error') {
+      wrapper.innerHTML = `
+        <div class="msg error">
+          <div class="avatar">⚠</div>
+          <div class="msg-error-bubble">${escHtml(content)}</div>
+        </div>`;
     }
 
-    msg.appendChild(avatar);
-    msg.appendChild(bubble);
-    messagesEl.appendChild(msg);
+    messagesEl.appendChild(wrapper);
     scrollBottom();
   }
 
@@ -1034,28 +1030,32 @@
     scrollBottom();
   }
 
-  // ── State: thinking indicator ─────────────────────────────────────────────
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── STATE 6: Thinking ─────────────────────────────────────────────────────
   function showTyping() {
-    const msg    = document.createElement('div');
-    msg.className = 'msg bot'; msg.id = 'typing-indicator';
-    const avatar  = document.createElement('div');
-    avatar.className = 'avatar'; avatar.textContent = '✦';
-    const bubble  = document.createElement('div');
-    bubble.className = 'bubble typing';
-    bubble.innerHTML  = '<span></span><span></span><span></span>';
-    msg.appendChild(avatar); msg.appendChild(bubble);
-    messagesEl.appendChild(msg); scrollBottom();
+    const wrap = document.createElement('div');
+    wrap.id = 'typing-indicator';
+    wrap.innerHTML = `
+      <div class="msg bot">
+        <div class="avatar">◈</div>
+        <div class="msg-agent-bubble typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>`;
+    messagesEl.appendChild(wrap);
+    scrollBottom();
     setStatus('busy');
-    inputShell.classList.add('disabled');
+    chatBar.classList.add('disabled');
   }
 
   function removeTyping() {
     document.getElementById('typing-indicator')?.remove();
-    setStatus('');
-    inputShell.classList.remove('disabled');
+    chatBar.classList.remove('disabled');
   }
 
-  // ── Provider config for request ───────────────────────────────────────────
   function getProviderConfig() {
     return {
       type:       activeProvider,
@@ -1064,7 +1064,7 @@
     };
   }
 
-  // ── State: chat-active / send ─────────────────────────────────────────────
+  // ── Send ───────────────────────────────────────────────────────────────────
   async function send() {
     if (busy) return;
     const message = inputEl.value.trim();
@@ -1083,15 +1083,9 @@
       const res = await fetch('/api/chat', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          message, history, context,
-          file_id:  fileId,
-          provider: getProviderConfig(),
-        }),
+        body:    JSON.stringify({ message, history, context, file_id: fileId, provider: getProviderConfig() }),
       });
-
       removeTyping();
-
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         addMessage('error', 'Error: ' + (err.detail || res.statusText));
@@ -1114,39 +1108,35 @@
     inputEl.focus();
   }
 
-  // ── State: new-chat / reset ───────────────────────────────────────────────
+  // ── STATE 9: New chat / reset ──────────────────────────────────────────────
   function clearChat() {
     history = []; context = {};
     setStatus('');
     messagesEl.innerHTML = `
       <div id="empty-state">
-        <div class="es-icon">📈</div>
-        <h2>Ask about your finances</h2>
-        <p>Upload a CSV or Excel file, then ask anything about your spending, budgets, or transactions.</p>
-        <div class="quick-chips">
-          <button class="quick-chip" onclick="chipSend('What did I spend last month?')">Last month summary</button>
-          <button class="quick-chip" onclick="chipSend('Show me my top 5 merchants')">Top merchants</button>
-          <button class="quick-chip" onclick="chipSend('Do I have any recurring subscriptions?')">Subscriptions</button>
-          <button class="quick-chip" onclick="chipSend('How am I doing financially?')">Financial health</button>
+        <h1>Ask about your finances</h1>
+        <p>Upload a file or ask a question to begin analysis.</p>
+        <div class="s1-chips">
+          <button class="s1-chip" onclick="chip('What did I spend last month?')"><span class="chip-icon">📊</span>Where did I spend most?</button>
+          <button class="s1-chip" onclick="chip('Do I have any recurring subscriptions?')"><span class="chip-icon">🔄</span>Recurring charges</button>
+          <button class="s1-chip" onclick="chip('Show me my top 5 merchants')"><span class="chip-icon">🏪</span>Top merchants</button>
+          <button class="s1-chip" onclick="chip('How am I doing financially?')"><span class="chip-icon">📈</span>Financial health</button>
         </div>
       </div>`;
-    suggestions.style.display = 'flex';
-    suggestions.style.flexDirection = 'column';
     unlockProvider();
     inputEl.focus();
   }
 
-  // ── File upload ───────────────────────────────────────────────────────────
+  // ── File upload ────────────────────────────────────────────────────────────
   async function handleUpload(input) {
     const file = input.files[0];
     if (!file) return;
     input.value = '';
 
-    // ── State: uploading ──
-    const icon = document.getElementById('upload-label-icon');
-    const text = document.getElementById('upload-label-text');
-    icon.outerHTML = '<div class="upload-spinner" id="upload-label-icon"></div>';
-    text.textContent = 'Uploading…';
+    // STATE 3: uploading
+    document.getElementById('upload-icon').textContent = '';
+    document.getElementById('upload-icon').outerHTML = '<div class="upload-spinner" id="upload-icon" style="width:12px;height:12px;border:1.5px solid rgba(42,42,255,.3);border-top-color:#2a2aff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0"></div>';
+    document.getElementById('upload-text').textContent = 'Uploading…';
     uploadLabel.classList.add('uploading');
     document.getElementById('upload-progress-wrap').classList.add('visible');
 
@@ -1163,24 +1153,23 @@
       const data = await res.json();
       setActiveFile(data);
       addSystemMessage(`📂 Loaded **${data.filename}** — ${data.rows.toLocaleString()} rows · ${data.date_min} → ${data.date_max}`);
-      showToast(`Loaded ${data.rows.toLocaleString()} rows from ${data.filename}`, 'success');
+      showToast(`Loaded ${data.rows.toLocaleString()} rows`, 'success');
     } catch {
       showToast('Upload failed — network error.', 'error');
     } finally {
-      // Restore upload button to idle state
       uploadLabel.classList.remove('uploading');
       document.getElementById('upload-progress-wrap').classList.remove('visible');
-      const spinner = document.getElementById('upload-label-icon');
-      if (spinner) spinner.outerHTML = '<span id="upload-label-icon">📎</span>';
-      document.getElementById('upload-label-text').textContent = 'Upload CSV / Excel';
+      const spinner = document.getElementById('upload-icon');
+      if (spinner) spinner.outerHTML = '<span id="upload-icon">⬆</span>';
+      document.getElementById('upload-text').textContent = 'Upload CSV / Excel';
     }
   }
 
-  // ── State: file-loaded ────────────────────────────────────────────────────
+  // ── STATE 4: File loaded ────────────────────────────────────────────────────
   function setActiveFile(data) {
     fileId = data.file_id;
     document.getElementById('badge-name').textContent = data.filename;
-    document.getElementById('badge-meta').textContent = `${data.rows.toLocaleString()} rows`;
+    document.getElementById('badge-meta').textContent = `${data.rows.toLocaleString()} rows · ${data.date_min} → ${data.date_max}`;
     fileBadge.classList.add('visible');
     uploadLabel.style.display = 'none';
     history = []; context = {};
@@ -1199,14 +1188,12 @@
     window.open(`/api/download/${fileId}?format=${format}`, '_blank');
   }
 
-  // ── State: drag-over ─────────────────────────────────────────────────────
+  // ── STATE 2: Drag-over ─────────────────────────────────────────────────────
   const overlay = document.getElementById('drag-overlay');
   let dragCount = 0;
 
   document.addEventListener('dragenter', e => {
-    if ([...e.dataTransfer.items].some(i => i.kind === 'file')) {
-      dragCount++; overlay.classList.add('active');
-    }
+    if ([...e.dataTransfer.items].some(i => i.kind === 'file')) { dragCount++; overlay.classList.add('active'); }
   });
   document.addEventListener('dragleave', () => {
     if (--dragCount <= 0) { dragCount = 0; overlay.classList.remove('active'); }
@@ -1224,7 +1211,7 @@
     handleUpload({ files: [file], value: '' });
   });
 
-  // ── Boot ──────────────────────────────────────────────────────────────────
+  // ── Boot ───────────────────────────────────────────────────────────────────
   initProviders();
   inputEl.focus();
 </script>
