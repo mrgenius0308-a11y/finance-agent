@@ -25,14 +25,14 @@ from finance_agent.tools import (
 )
 
 # Defaults (used by CLI and as fallback)
-DEFAULT_MODEL    = "llama-3.1-8b-instant"
+DEFAULT_MODEL    = "llama-3.3-70b-versatile"
 GROQ_BASE_URL    = "https://api.groq.com/openai/v1"
 OLLAMA_BASE_URL  = "http://localhost:11434/v1"
 
 # Model menus surfaced to the UI
 GROQ_MODELS = [
-    "llama-3.1-8b-instant",
     "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
     "mixtral-8x7b-32768",
     "gemma2-9b-it",
 ]
