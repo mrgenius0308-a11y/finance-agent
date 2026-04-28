@@ -231,7 +231,7 @@ def run_turn(
             }
             tool_results = []
             for tc in choice.message.tool_calls:
-                args = json.loads(tc.function.arguments or "{}")
+                args = json.loads(tc.function.arguments or "{}") or {}
                 last_tool_args.update(args)
                 result = _execute_tool(tc.function.name, args)
                 tool_results.append({
@@ -241,4 +241,9 @@ def run_turn(
                 })
             messages = messages + tool_results
         else:
-            return choice.message.content or "", messages, last_tool_args
+            final_text = choice.message.content or ""
+            clean_messages = [
+                m for m in messages
+                if m.get("role") in ("user", "assistant") and "tool_calls" not in m
+            ]
+            return final_text, clean_messages, last_tool_args
