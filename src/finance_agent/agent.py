@@ -205,13 +205,27 @@ def run_turn(
     last_tool_args: dict = {}
 
     while True:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + messages,
-            tools=TOOLS_SCHEMA,
-            tool_choice="auto",
-            max_tokens=2048,
-        )
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+                tools=TOOLS_SCHEMA,
+                tool_choice="auto",
+                max_tokens=2048,
+            )
+        except Exception as exc:
+            # Groq rejects malformed tool calls the model generates (400 tool_use_failed).
+            # Retry without tools so the model answers conversationally from context.
+            if "tool_use_failed" in str(exc) or (
+                hasattr(exc, "status_code") and exc.status_code == 400
+            ):
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "system", "content": SYSTEM_PROMPT}] + messages,
+                    max_tokens=2048,
+                )
+            else:
+                raise
 
         choice = response.choices[0]
         messages = messages + [{"role": "assistant", "content": choice.message.content or ""}]

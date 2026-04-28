@@ -46,11 +46,20 @@ _CTX_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Matches leaked function-call markup that small models sometimes emit in text,
+# e.g. "<function=top_merchants>{"n": 5}</function>" or without the opening "<".
+_FUNC_TAG_RE = re.compile(r"<?\bfunction=[^>\n]+>[^<\n]*</function>", re.IGNORECASE)
+
 
 def _strip_context_update(text: str) -> str:
     return "\n".join(
         line for line in text.splitlines() if not _CTX_RE.search(line)
     ).strip()
+
+
+def _clean_response(text: str) -> str:
+    text = _FUNC_TAG_RE.sub("", text)
+    return _strip_context_update(text)
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +240,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
     )
 
     return ChatResponse(
-        response=_strip_context_update(raw),
+        response=_clean_response(raw),
         history=updated_history,
         context=ctx.as_dict(),
     )
