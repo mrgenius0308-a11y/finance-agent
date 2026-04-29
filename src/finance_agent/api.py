@@ -13,8 +13,9 @@ import uuid
 from pathlib import Path
 
 import pandas as pd
+import stripe
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -37,6 +38,26 @@ _UPLOADS_DIR = Path(__file__).parents[2] / "uploads"
 _UPLOADS_DIR.mkdir(exist_ok=True)
 
 _REQUIRED_COLS = {"date", "description", "merchant", "category", "amount", "account"}
+
+# ---------------------------------------------------------------------------
+# Usage / session tracking (in-memory, resets on restart — MVP)
+# ---------------------------------------------------------------------------
+_FREE_LIMIT = 3
+_sessions: dict[str, dict] = {}  # token -> {messages_used: int, is_paid: bool}
+
+_APP_URL = os.environ.get(
+    "APP_URL", "https://finance-agent-production-c752.up.railway.app"
+)
+
+
+def _get_session(token: str | None) -> tuple[str, dict]:
+    """Return (token, session_dict), creating a new session if needed."""
+    if token and token in _sessions:
+        return token, _sessions[token]
+    new_token = str(uuid.uuid4())
+    _sessions[new_token] = {"messages_used": 0, "is_paid": False}
+    return new_token, _sessions[new_token]
+
 
 app = FastAPI(title="Finance Agent")
 app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
@@ -78,12 +99,21 @@ class ChatRequest(BaseModel):
     context: dict = {}
     file_id: str | None = None
     provider: ProviderConfig = ProviderConfig()
+    session_token: str | None = None
 
 
 class ChatResponse(BaseModel):
     response: str
     history: list[dict]
     context: dict
+    session_token: str
+    messages_used: int
+    limit: int
+    is_paid: bool
+
+
+class CheckoutRequest(BaseModel):
+    session_token: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -194,6 +224,15 @@ def download_file(file_id: str, format: str = "csv") -> StreamingResponse | File
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
+    sess_token, session = _get_session(req.session_token)
+
+    # Enforce free-tier limit.
+    if session["messages_used"] >= _FREE_LIMIT and not session["is_paid"]:
+        raise HTTPException(
+            status_code=402,
+            detail={"code": "limit_reached", "session_token": sess_token},
+        )
+
     # Resolve provider credentials server-side — never trust the client with keys.
     if req.provider.type == "ollama":
         base_url = req.provider.ollama_url
@@ -213,11 +252,11 @@ async def chat(req: ChatRequest) -> ChatResponse:
     prefix     = ctx.to_prefix()
     full_input = (prefix + req.message) if prefix else req.message
 
-    token = None
+    csv_token = None
     if req.file_id:
         upload_path = _UPLOADS_DIR / f"{req.file_id}.csv"
         if upload_path.exists():
-            token = _active_csv.set(str(upload_path))
+            csv_token = _active_csv.set(str(upload_path))
 
     try:
         raw, updated_history, tool_args = run_turn(
@@ -230,8 +269,8 @@ async def chat(req: ChatRequest) -> ChatResponse:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     finally:
-        if token is not None:
-            _active_csv.reset(token)
+        if csv_token is not None:
+            _active_csv.reset(csv_token)
 
     ctx.set(
         month=tool_args.get("month"),
@@ -239,8 +278,73 @@ async def chat(req: ChatRequest) -> ChatResponse:
         account=tool_args.get("account"),
     )
 
+    session["messages_used"] += 1
+
     return ChatResponse(
         response=_clean_response(raw),
         history=updated_history,
         context=ctx.as_dict(),
+        session_token=sess_token,
+        messages_used=session["messages_used"],
+        limit=_FREE_LIMIT,
+        is_paid=session["is_paid"],
     )
+
+
+@app.get("/api/usage")
+def get_usage(session_token: str | None = None) -> dict:
+    if session_token and session_token in _sessions:
+        s = _sessions[session_token]
+        return {"messages_used": s["messages_used"], "limit": _FREE_LIMIT, "is_paid": s["is_paid"]}
+    return {"messages_used": 0, "limit": _FREE_LIMIT, "is_paid": False}
+
+
+@app.post("/api/stripe/checkout")
+async def create_checkout(req: CheckoutRequest) -> dict:
+    secret_key = os.environ.get("STRIPE_SECRET_KEY")
+    if not secret_key:
+        raise HTTPException(503, "Stripe is not configured on this server.")
+
+    stripe.api_key = secret_key
+    sess_token, _ = _get_session(req.session_token)
+
+    checkout_session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=[{
+            "price_data": {
+                "currency": "usd",
+                "product_data": {"name": "Finance Agent — Unlimited"},
+                "unit_amount": 900,
+                "recurring": {"interval": "month"},
+            },
+            "quantity": 1,
+        }],
+        mode="subscription",
+        client_reference_id=sess_token,
+        success_url=f"{_APP_URL}?paid=1",
+        cancel_url=f"{_APP_URL}?paid=0",
+    )
+
+    return {"checkout_url": checkout_session.url}
+
+
+@app.post("/api/stripe/webhook")
+async def stripe_webhook(request: Request) -> dict:
+    webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
+    if not webhook_secret:
+        raise HTTPException(503, "Webhook secret not configured.")
+
+    payload    = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(400, "Invalid Stripe signature.")
+
+    if event["type"] == "checkout.session.completed":
+        ref = event["data"]["object"].get("client_reference_id")
+        if ref and ref in _sessions:
+            _sessions[ref]["is_paid"] = True
+
+    return {"received": True}
