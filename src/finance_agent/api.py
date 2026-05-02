@@ -339,7 +339,7 @@ async def stripe_webhook(request: Request) -> dict:
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-    except stripe.error.SignatureVerificationError:
+    except stripe.SignatureVerificationError:
         raise HTTPException(400, "Invalid Stripe signature.")
 
     if event["type"] == "checkout.session.completed":

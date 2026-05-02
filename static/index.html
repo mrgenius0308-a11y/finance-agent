@@ -697,6 +697,94 @@
 
     #provider-bar { display: none; }
 
+    /* ── Usage bar ───────────────────────────────────── */
+    .usage-wrap {
+      margin: 6px 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .usage-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .usage-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .usage-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width .3s ease;
+    }
+    .usage-fill.warn  { background: var(--warn); }
+    .usage-fill.full  { background: var(--error); }
+
+    /* ── Paywall modal ───────────────────────────────── */
+    #paywall-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    #paywall-modal.active { display: flex; animation: fadein .2s ease; }
+    .paywall-card {
+      background: #0d0d14;
+      border: 1px solid #2a2a44;
+      border-radius: 16px;
+      padding: 36px 32px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,.7);
+    }
+    .paywall-icon  { font-size: 36px; margin-bottom: 12px; }
+    .paywall-title { font-size: 18px; font-weight: 700; color: var(--text-strong); margin-bottom: 8px; }
+    .paywall-sub   { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+    .paywall-price {
+      font-size: 28px; font-weight: 700;
+      color: var(--text-strong);
+      margin-bottom: 4px;
+    }
+    .paywall-price span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+    .paywall-btn {
+      width: 100%;
+      padding: 13px;
+      margin-top: 20px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: opacity .15s, transform .1s;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+    .paywall-btn:hover  { opacity: .88; }
+    .paywall-btn:active { transform: scale(.97); }
+    .paywall-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .paywall-dismiss {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .paywall-dismiss:hover { color: var(--text); }
+
     /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
@@ -715,6 +803,18 @@
 
 <!-- Toast container -->
 <div id="toast-root"></div>
+
+<!-- Paywall modal -->
+<div id="paywall-modal">
+  <div class="paywall-card">
+    <div class="paywall-icon">⚡</div>
+    <div class="paywall-title">Unlock Unlimited Analysis</div>
+    <div class="paywall-sub">You've used your free messages. Upgrade to keep asking questions about your finances — no limits, ever.</div>
+    <div class="paywall-price">$9<span> / month</span></div>
+    <button class="paywall-btn" id="paywall-btn" onclick="startCheckout()">Upgrade Now</button>
+    <div class="paywall-dismiss" onclick="dismissPaywall()">Maybe later</div>
+  </div>
+</div>
 
 <!-- Legacy hook -->
 <div id="provider-bar"></div>
@@ -801,6 +901,20 @@
       <div class="nav-link" onclick="chip('How am I doing financially?')"><span class="nl-dot"></span>Financial health</div>
     </div>
 
+    <!-- Usage bar -->
+    <div class="sb-section" id="usage-section" style="display:none">
+      <div class="sidebar-section-label">Usage</div>
+      <div class="usage-wrap">
+        <div class="usage-label">
+          <span id="usage-text">0 / 10 messages</span>
+          <span id="usage-paid" style="display:none;color:var(--success)">✓ Unlimited</span>
+        </div>
+        <div class="usage-track">
+          <div class="usage-fill" id="usage-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <div class="sb-footer">
       <button id="clear-btn" onclick="clearChat()">↺ &nbsp; New Session</button>
@@ -865,6 +979,7 @@
   let sessionStarted = false;
   let providerData   = {};
   let activeProvider = 'groq';
+  let sessionToken   = localStorage.getItem('fa_session_token') || null;
 
   const messagesEl = document.getElementById('messages');
   const inputEl    = document.getElementById('input');
@@ -1064,6 +1179,58 @@
     };
   }
 
+  // ── Usage bar ──────────────────────────────────────────────────────────────
+  function updateUsage(used, limit, isPaid) {
+    const section = document.getElementById('usage-section');
+    const text    = document.getElementById('usage-text');
+    const fill    = document.getElementById('usage-fill');
+    const paidEl  = document.getElementById('usage-paid');
+    section.style.display = '';
+
+    if (isPaid) {
+      text.style.display  = 'none';
+      paidEl.style.display = '';
+      fill.style.width    = '100%';
+      fill.className      = 'usage-fill';
+    } else {
+      text.style.display  = '';
+      paidEl.style.display = 'none';
+      text.textContent    = `${used} / ${limit} messages`;
+      const pct = Math.min(100, Math.round((used / limit) * 100));
+      fill.style.width = pct + '%';
+      fill.className   = 'usage-fill' + (pct >= 100 ? ' full' : pct >= 70 ? ' warn' : '');
+    }
+  }
+
+  // ── Paywall ────────────────────────────────────────────────────────────────
+  function showPaywall() {
+    document.getElementById('paywall-modal').classList.add('active');
+  }
+
+  function dismissPaywall() {
+    document.getElementById('paywall-modal').classList.remove('active');
+  }
+
+  async function startCheckout() {
+    const btn = document.getElementById('paywall-btn');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting…';
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ session_token: sessionToken }),
+      });
+      if (!res.ok) throw new Error('Checkout failed');
+      const data = await res.json();
+      window.location.href = data.checkout_url;
+    } catch {
+      btn.disabled = false;
+      btn.textContent = 'Upgrade Now';
+      showToast('Could not start checkout. Try again.', 'error');
+    }
+  }
+
   // ── Send ───────────────────────────────────────────────────────────────────
   async function send() {
     if (busy) return;
@@ -1083,15 +1250,27 @@
       const res = await fetch('/api/chat', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ message, history, context, file_id: fileId, provider: getProviderConfig() }),
+        body:    JSON.stringify({ message, history, context, file_id: fileId, provider: getProviderConfig(), session_token: sessionToken }),
       });
       removeTyping();
-      if (!res.ok) {
+
+      if (res.status === 402) {
+        const err = await res.json().catch(() => ({}));
+        if (err.detail?.session_token) {
+          sessionToken = err.detail.session_token;
+          localStorage.setItem('fa_session_token', sessionToken);
+        }
+        showPaywall();
+        setStatus('');
+      } else if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
-        addMessage('error', 'Error: ' + (err.detail || res.statusText));
+        addMessage('error', 'Error: ' + (typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail)));
         setStatus('error');
       } else {
         const data = await res.json();
+        sessionToken = data.session_token;
+        localStorage.setItem('fa_session_token', sessionToken);
+        updateUsage(data.messages_used, data.limit, data.is_paid);
         addMessage('bot', data.response);
         history = data.history;
         context = data.context;
@@ -1111,6 +1290,9 @@
   // ── STATE 9: New chat / reset ──────────────────────────────────────────────
   function clearChat() {
     history = []; context = {};
+    sessionToken = null;
+    localStorage.removeItem('fa_session_token');
+    document.getElementById('usage-section').style.display = 'none';
     setStatus('');
     messagesEl.innerHTML = `
       <div id="empty-state">
@@ -1214,6 +1396,21 @@
   // ── Boot ───────────────────────────────────────────────────────────────────
   initProviders();
   inputEl.focus();
+
+  // Handle ?paid=1 redirect back from Stripe
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('paid') === '1') {
+    showToast('Payment successful! You now have unlimited access.', 'success');
+    // Fetch current usage to update the bar
+    if (sessionToken) {
+      fetch(`/api/usage?session_token=${sessionToken}`)
+        .then(r => r.json())
+        .then(d => updateUsage(d.messages_used, d.limit, d.is_paid))
+        .catch(() => {});
+    }
+    // Clean ?paid=1 from the URL without reloading
+    window.history.replaceState({}, '', window.location.pathname);
+  }
 </script>
 </body>
 </html>
