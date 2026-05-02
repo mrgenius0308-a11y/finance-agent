@@ -42,7 +42,7 @@ _REQUIRED_COLS = {"date", "description", "merchant", "category", "amount", "acco
 # ---------------------------------------------------------------------------
 # Usage / session tracking (in-memory, resets on restart — MVP)
 # ---------------------------------------------------------------------------
-_FREE_LIMIT = 3
+_FREE_LIMIT = 10
 _sessions: dict[str, dict] = {}  # token -> {messages_used: int, is_paid: bool}
 
 _APP_URL = os.environ.get(
