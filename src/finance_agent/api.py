@@ -342,8 +342,8 @@ async def stripe_webhook(request: Request) -> dict:
     except stripe.SignatureVerificationError:
         raise HTTPException(400, "Invalid Stripe signature.")
 
-    if event["type"] == "checkout.session.completed":
-        ref = event["data"]["object"].get("client_reference_id")
+    if event.type == "checkout.session.completed":
+        ref = getattr(event.data.object, "client_reference_id", None)
         if ref and ref in _sessions:
             _sessions[ref]["is_paid"] = True
 
