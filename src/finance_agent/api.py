@@ -7,12 +7,14 @@ Run with:
 from __future__ import annotations
 
 import io
+import json
 import os
 import re
 import uuid
 from pathlib import Path
 
 import pandas as pd
+import redis as redis_lib
 import stripe
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
@@ -40,23 +42,61 @@ _UPLOADS_DIR.mkdir(exist_ok=True)
 _REQUIRED_COLS = {"date", "description", "merchant", "category", "amount", "account"}
 
 # ---------------------------------------------------------------------------
-# Usage / session tracking (in-memory, resets on restart — MVP)
+# Usage / session tracking — Redis-backed with in-memory fallback
 # ---------------------------------------------------------------------------
 _FREE_LIMIT = 10
-_sessions: dict[str, dict] = {}  # token -> {messages_used: int, is_paid: bool}
+_sessions: dict[str, dict] = {}  # fallback when Redis is unavailable
 
 _APP_URL = os.environ.get(
     "APP_URL", "https://finance-agent-production-c752.up.railway.app"
 )
 
+_SESSION_TTL = 60 * 60 * 24 * 90  # 90 days
+
+
+def _init_redis():
+    url = os.getenv("REDIS_URL")
+    if not url:
+        return None
+    try:
+        r = redis_lib.Redis.from_url(url, decode_responses=True)
+        r.ping()
+        return r
+    except Exception:
+        return None
+
+
+_redis = _init_redis()
+
+
+def _session_key(token: str) -> str:
+    return f"fa:session:{token}"
+
 
 def _get_session(token: str | None) -> tuple[str, dict]:
     """Return (token, session_dict), creating a new session if needed."""
-    if token and token in _sessions:
-        return token, _sessions[token]
+    if token:
+        if _redis:
+            raw = _redis.get(_session_key(token))
+            if raw:
+                return token, json.loads(raw)
+        elif token in _sessions:
+            return token, _sessions[token]
+
     new_token = str(uuid.uuid4())
-    _sessions[new_token] = {"messages_used": 0, "is_paid": False}
-    return new_token, _sessions[new_token]
+    session = {"messages_used": 0, "is_paid": False}
+    if _redis:
+        _redis.setex(_session_key(new_token), _SESSION_TTL, json.dumps(session))
+    else:
+        _sessions[new_token] = session
+    return new_token, session
+
+
+def _save_session(token: str, session: dict) -> None:
+    if _redis:
+        _redis.setex(_session_key(token), _SESSION_TTL, json.dumps(session))
+    else:
+        _sessions[token] = session
 
 
 app = FastAPI(title="Finance Agent")
@@ -279,6 +319,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
     )
 
     session["messages_used"] += 1
+    _save_session(sess_token, session)
 
     return ChatResponse(
         response=_clean_response(raw),
@@ -293,9 +334,15 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
 @app.get("/api/usage")
 def get_usage(session_token: str | None = None) -> dict:
-    if session_token and session_token in _sessions:
-        s = _sessions[session_token]
-        return {"messages_used": s["messages_used"], "limit": _FREE_LIMIT, "is_paid": s["is_paid"]}
+    if session_token:
+        if _redis:
+            raw = _redis.get(_session_key(session_token))
+            if raw:
+                s = json.loads(raw)
+                return {"messages_used": s["messages_used"], "limit": _FREE_LIMIT, "is_paid": s["is_paid"]}
+        elif session_token in _sessions:
+            s = _sessions[session_token]
+            return {"messages_used": s["messages_used"], "limit": _FREE_LIMIT, "is_paid": s["is_paid"]}
     return {"messages_used": 0, "limit": _FREE_LIMIT, "is_paid": False}
 
 
@@ -344,7 +391,13 @@ async def stripe_webhook(request: Request) -> dict:
 
     if event.type == "checkout.session.completed":
         ref = getattr(event.data.object, "client_reference_id", None)
-        if ref and ref in _sessions:
-            _sessions[ref]["is_paid"] = True
+        if ref:
+            if _redis:
+                raw = _redis.get(_session_key(ref))
+                session = json.loads(raw) if raw else {"messages_used": 0, "is_paid": False}
+            else:
+                session = _sessions.get(ref, {"messages_used": 0, "is_paid": False})
+            session["is_paid"] = True
+            _save_session(ref, session)
 
     return {"received": True}
